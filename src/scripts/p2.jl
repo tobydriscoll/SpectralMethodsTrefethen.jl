@@ -8,8 +8,8 @@ for N = 2:2:100
     u = @. exp(sin(x)); uprime = @. cos(x)*u;
 
     # Construct spectral differentiation matrix:
-    D = [ 0.5*(-1)^(i-j)*cot((i-j)*h/2) for i=1:N, j=1:N ];
-    D[1:N+1:end] = 0;
+    column = [ 0; @. .5*(-1)^(1:N-1)*cot((1:N-1)*h/2) ];
+    D = toeplitz(column,column[[1;N:-1:2]]);
 
     # Plot max(abs(D*u-uprime)):
     error = norm(D*u-uprime,Inf);

@@ -3,8 +3,7 @@
 
 using PyPlot
 N = 42; h = 2*pi/N; x = h*(1:N);
-D2 = [ -.5*(-1)^(i-j)/sin(h*(i-j)/2)^2 for i = 0:N-1, j = 0:N-1 ];
-D2[1:N+1:end] = -pi^2/(3*h^2)-1/6;
+D2 = toeplitz([-pi^2/(3*h^2)-1/6; @. -.5*(-1)^(1:N-1)/sin(h*(1:N-1)/2)^2]);
 qq = 0:.2:15; data = [];
 for q = qq;
     e = sort(eigvals(-D2 + 2*q*diagm(cos.(2*x))));

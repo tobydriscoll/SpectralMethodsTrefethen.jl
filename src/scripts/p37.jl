@@ -1,10 +1,10 @@
 # p37.jl - 2D "wave tank" with Neumann BCs for |y|=1
 
-using SMiJ, PyPlot
+using PyPlot
 # x variable in [-A,A], Fourier:
 A = 3; Nx = 50; dx = 2*A/Nx; x = -A+dx*(1:Nx);
-entry(k) = k==0 ? -1/(3*(dx/A)^2)-1/6 : .5*(-1)^(k+1)/sin((pi*dx/A)*k/2)^2;
-D2x = [ (pi/A)^2*entry(i-j) for i=1:Nx, j=1:Nx ];
+D2x = (pi/A)^2*toeplitz([-1/(3*(dx/A)^2)-1/6;
+        @. .5*(-1).^(2:Nx)/sin((pi*dx/A)*(1:Nx-1)/2)^2]);
 
 # y variable in [-1,1], Chebyshev:
 Ny = 15; (Dy,y) = cheb(Ny); D2y = Dy^2;

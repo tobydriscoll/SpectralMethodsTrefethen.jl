@@ -2,8 +2,8 @@
 using PyPlot;  clf();
 # Set up grid and differentiation matrix:
 N = 24; h = 2*pi/N; x = h*(1:N);
-D = [ 0.5*(-1)^(i-j)*cot((i-j)*h/2) for i=1:N, j=1:N ];
-D[1:N+1:end] = 0;
+column = [0; @. .5*(-1)^(1:N-1)*cot((1:N-1)*h/2)];
+D = toeplitz(column,column[[1;N:-1:2]]);
 
 # Differentiation of a hat function:
 v = @. max(0,1-abs(x-pi)/2);

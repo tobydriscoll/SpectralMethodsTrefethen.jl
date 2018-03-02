@@ -1,6 +1,6 @@
 # p28.jl - eigenmodes of Laplacian on the disk (compare p22.jl)
 
-using SMiJ,PyPlot
+using PyPlot
 # r coordinate, ranging from -1 to 1 (N must be odd):
 N = 25; N2 = Int((N-1)/2);
 (D,r) = cheb(N); D2 = D^2;
@@ -9,8 +9,7 @@ E1 =  D[2:N2+1,2:N2+1]; E2 =  D[2:N2+1,N:-1:N2+2];
 
 # t = theta coordinate, ranging from 0 to 2*pi (M must be even):
 M = 20; dt = 2*pi/M; t = dt*(1:M); M2 = Int(M/2);
-D2t = [@. .5*(-1)^(i-j+1)/sin(dt*(i-j)/2)^2 for i=1:M, j=1:M];
-D2t[1:M+1:end] = -pi^2/(3*dt^2)-1/6;
+D2t = toeplitz([-pi^2/(3*dt^2)-1/6; @. .5*(-1)^(2:M)/sin(dt*(1:M-1)/2)^2]);
 
 # Laplacian in polar coordinates:
 R = diagm(1./r[2:N2+1]);
@@ -37,6 +36,6 @@ for i = 1:4
     surf(xx,yy,u)
     gca()[:view_init](20,90); axis("square");
     contour3D(xx,yy,u-1,levels=[-1]);
-    plot3D(real(z),imag(z),-abs(z));
+    plot3D(real(z),imag(z),-abs.(z));
     title("Mode $(index[i]):  λ = $(signif(Lam[i],11))",fontsize=9);
 end

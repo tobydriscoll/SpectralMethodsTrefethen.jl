@@ -4,8 +4,8 @@
 Nmax = 50; allN = 6:2:Nmax; E = zeros(4,length(allN));
 for j = eachindex(allN)
     N = allN[j]; h = 2*pi/N; x = h*(1:N);
-    D = [ 0.5*(-1)^(i-j)*cot((i-j)*h/2) for i=1:N, j=1:N ];
-    D[1:N+1:end] = 0;
+    column = [0; @. .5*(-1)^(1:N-1)*cot((1:N-1)*h/2)];
+    D = toeplitz(column,column[[1;N:-1:2]]);
     v = @. abs(sin(x))^3;                     # 3rd deriv in BV
     vprime = @. 3*sin(x)*cos(x)*abs(sin(x));
     E[1,j] = norm(D*v-vprime,Inf);
