@@ -1,7 +1,7 @@
 # p23a.jl - eigenvalues of perturbed Laplacian on [-1,1]x[-1,1]
 #         (compare p16.jl)
 
-using SMiJ, PyPlot, Interpolations
+using PyPlot, Interpolations
 # Set up tensor product Laplacian and compute 4 eigenmodes:
 N = 16; (D,x) = cheb(N); y = x;
 xx = x[2:N]; yy = y[2:N];

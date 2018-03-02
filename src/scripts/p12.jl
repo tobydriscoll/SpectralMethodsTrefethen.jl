@@ -1,7 +1,6 @@
 # p12.jl - accuracy of Chebyshev spectral differentiation
 #         (compare p7.jl)
 
-using SMiJ
 # Compute derivatives for various values of N:
 Nmax = 50; allN = 6:2:Nmax; E = zeros(4,Nmax);
 for N = 1:Nmax

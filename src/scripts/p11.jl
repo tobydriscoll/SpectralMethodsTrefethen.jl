@@ -1,6 +1,5 @@
 # p11.jl - Chebyshev differentation of a smooth function
 
-using SMiJ
 xx = -1:.01:1; uu = @. exp(xx)*sin(5*xx);
 using PyPlot; clf();
 for N = [10 20]

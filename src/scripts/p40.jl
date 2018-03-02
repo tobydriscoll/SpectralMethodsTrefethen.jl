@@ -1,6 +1,6 @@
 # p40.jl - eigenvalues of Orr-Sommerfeld operator (compare p38.jl)
 
-using SMiJ, PyPlot, Polynomials
+using PyPlot, Polynomials
 R = 5772; clf();
 for N = 40:20:100
     # 2nd- and 4th-order differentiation matrices:

@@ -16,4 +16,4 @@ for N = 2:2:100
     loglog(N,error,".",markersize=12);
 end
 title("Convergence of spectral differentiation")
-xlabel("\$N\$");  ylabel("error");
+xlabel("N");  ylabel("error");

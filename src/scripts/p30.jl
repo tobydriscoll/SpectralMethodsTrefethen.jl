@@ -1,6 +1,6 @@
 # p30.jl - spectral integration, ODE style (compare p12.jl)
 
-using SMiJ, PyPlot, SpecialFunctions, LaTeXStrings
+using PyPlot, SpecialFunctions, LaTeXStrings
 # Computation: various values of N, four functions:
 Nmax = 50; E = zeros(4,Nmax); clf();
 for N = 1:Nmax

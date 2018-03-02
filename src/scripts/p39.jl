@@ -1,7 +1,7 @@
 # p39.m - eigenmodes of biharmonic on a square with clamped BCs
 #         (compare p38.m)
 
-using SMiJ, PyPlot, Interpolations
+using PyPlot, Interpolations
 # Construct spectral approximation to biharmonic operator:
 N = 17; (D,x) = cheb(N); D2 = D^2; D2 = D2[2:N,2:N];
 S = diagm([0; 1 ./(1-x[2:N].^2); 0]);

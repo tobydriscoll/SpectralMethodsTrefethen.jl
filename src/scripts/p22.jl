@@ -1,6 +1,6 @@
 # p22.jl - 5th eigenvector of Airy equation u_xx = lambda*x*u
 
-using SMiJ,PyPlot,Polynomials,SpecialFunctions; clf();
+using PyPlot,Polynomials,SpecialFunctions; clf();
 for N = 12:12:48
     (D,x) = cheb(N); D2 = D^2; D2 = D2[2:N,2:N];
     (lam,V) = eig(D2,diagm(x[2:N]));      # generalized ev problem

@@ -1,7 +1,7 @@
 # p38.jl - solve u_xxxx = exp(x), u(-1)=u(1)=u'(-1)=u'(1)=0
 #         (compare p13.jl)
 
-using SMiJ, PyPlot, Polynomials
+using PyPlot, Polynomials
 # Construct discrete biharmonic operator:
 N = 15; (D,x) = cheb(N);
 S = diagm([0; 1 ./(1-x[2:N].^2); 0]);

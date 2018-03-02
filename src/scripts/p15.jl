@@ -1,6 +1,6 @@
 # p15.jl - solve eigenvalue BVP u_xx = lambda*u, u(-1)=u(1)=0
 
-using SMiJ, Polynomials
+using Polynomials
 N = 36; (D,x) = cheb(N); D2 = D^2; D2 = D2[2:N,2:N];
 (lam,V) = eig(D2);
 ii = sortperm(-lam);          # sort eigenvalues and -vectors

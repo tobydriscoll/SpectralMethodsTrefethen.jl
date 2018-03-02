@@ -1,6 +1,6 @@
 # p18.jl - Chebyshev differentiation via FFT (compare p11.jl)
 
-using SMiJ, PyPlot
+using PyPlot
 xx = -1:.01:1; ff = @. exp(xx)*sin(5*xx); clf();
 for N = [10 20]
     x = cheb(N)[2]; f = @. exp(x)*sin(5*x);

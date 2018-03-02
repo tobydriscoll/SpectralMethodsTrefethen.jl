@@ -1,7 +1,7 @@
 # p35.m - Allen-Cahn eq. as in p34.m, but with boundary condition
 #         imposed explicitly ("method (II)")
 
-using SMiJ, PyPlot, Polynomials
+using PyPlot, Polynomials
 # Differentiation matrix and initial data:
 N = 20; (D,x) = cheb(N); D2 = D^2;     # use full-size matrix
 eps = 0.01; dt = min(.01,50/(N^4*eps));

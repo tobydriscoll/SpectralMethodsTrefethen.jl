@@ -1,6 +1,6 @@
 # p20.m - 2nd-order wave eq. in 2D via FFT (compare p19.m)
 
-using PyPlot, SMiJ, Interpolations
+using PyPlot, Interpolations
 # Grid and initial data:
 N = 24; x = y = cheb(N)[2];
 dt = 6/N^2;
@@ -26,16 +26,16 @@ for n = 0:3*plotgap
     ii = 2:N;
     for i = 2:N                # 2nd derivs wrt x in each row
           v = vv[i,:]; V = [v;flipdim(v[ii],1)];
-          U = real.(fft(V));
-          W1 = real.(ifft(1im*[0:N-1;0;1-N:-1].*U)); # diff wrt theta
-          W2 = real.(ifft(-[0:N;1-N:-1].^2.*U));     # diff^2 wrt theta
+          U = real(fft(V));
+          W1 = real(ifft(1im*[0:N-1;0;1-N:-1].*U)); # diff wrt theta
+          W2 = real(ifft(-[0:N;1-N:-1].^2.*U));     # diff^2 wrt theta
           uxx[i,ii] = W2[ii]./(1-x[ii].^2) - x[ii].*W1[ii]./(1-x[ii].^2).^(3/2);
     end
     for j = 2:N                # 2nd derivs wrt y in each column
           v = vv[:,j]; V = [v; flipdim(v[ii],1)];
-          U = real.(fft(V));
-          W1 = real.(ifft(1im*[0:N-1;0;1-N:-1].*U));# diff wrt theta
-          W2 = real.(ifft(-[0:N;1-N:-1].^2.*U));    # diff^2 wrt theta
+          U = real(fft(V));
+          W1 = real(ifft(1im*[0:N-1;0;1-N:-1].*U));# diff wrt theta
+          W2 = real(ifft(-[0:N;1-N:-1].^2.*U));    # diff^2 wrt theta
           uyy[ii,j] = W2[ii]./(1-y[ii].^2) - y[ii].*W1[ii]./(1-y[ii].^2).^(3/2);
     end
     vvnew = 2*vv - vvold + dt^2*(uxx+uyy);

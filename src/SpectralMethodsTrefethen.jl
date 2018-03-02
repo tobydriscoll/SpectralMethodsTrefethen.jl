@@ -94,11 +94,11 @@ function gauss(N)
 end
 
 ## Stand-in for the native toeplitz function in MATLAB.
-function toeplitz(c,r=c)
-    m,n = length(c),length(r);
-    c[1]==r[1] || warn("Column wins conflict on the diagonal.");
-    x = [ r[end:-1:2]; c ];
-    return [ x[i-j+n] for i = 1:m, j=1:n ]
+function toeplitz(col,row=col)
+    m,n = length(col),length(row);
+    col[1]==row[1] || warn("Column wins conflict on the diagonal.");
+    x = [ row[end:-1:2]; col ];
+    return [ x[i-j+n] for i=1:m, j=1:n ]
 end
 
 ## Create callable functions for each of the Julia scripts.
@@ -129,7 +129,5 @@ for (root, dirs, files) in walkdir(joinpath(Pkg.dir("SpectralMethodsTrefethen"),
         eval(fundef);
     end
 end
-
-
 
 end

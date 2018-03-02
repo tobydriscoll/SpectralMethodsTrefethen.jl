@@ -1,6 +1,5 @@
 # p16.jl - Poisson eq. on [-1,1]x[-1,1] with u=0 on boundary
 
-using SMiJ
 # Set up grids and tensor product Laplacian and solve for u:
 N = 24; (D,x) = cheb(N); y = x;
 xx = x[2:N]; yy = y[2:N];

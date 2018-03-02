@@ -1,6 +1,6 @@
 # p31.jl - gamma function via complex integral, trapezoid rule
 
-using SMiJ,PyPlot
+using PyPlot
 N = 70; theta = -pi + (2*pi/N)*(.5:N-.5);
 c = -11;                     # center of circle of integration
 r = 16;                      # radius of circle of integration

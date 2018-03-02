@@ -1,6 +1,6 @@
 # p30b.jl - spectral integration, Clenshaw-Curtis style (compare p30.jl)
 
-using SMiJ, PyPlot, SpecialFunctions, LaTeXStrings
+using PyPlot, SpecialFunctions, LaTeXStrings
 # Computation: various values of N, four functions:
 Nmax = 50; E = zeros(4,Nmax); clf();
 for N = 1:Nmax

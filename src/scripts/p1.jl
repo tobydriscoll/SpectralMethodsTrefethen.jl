@@ -18,6 +18,6 @@ for N = Nvec
     loglog(N,error,".",markersize=12);
 end
 title("Convergence of fourth-order finite differences");
-xlabel("\$N\$");  ylabel("error");
+xlabel("N");  ylabel("error");
 loglog(Nvec,1./float(Nvec).^4,"--");
 text(105,5e-8,"\$N^{-4}\$",fontsize=18);

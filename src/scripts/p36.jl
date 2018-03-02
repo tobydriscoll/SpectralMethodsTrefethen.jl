@@ -1,6 +1,6 @@
 # p36.m - Laplace eq. on [-1,1]x[-1,1] with nonzero BCs
 
-using SMiJ, PyPlot, Interpolations
+using PyPlot, Interpolations
 # Set up grid and 2D Laplacian, boundary points included:
 N = 24; (D,x) = cheb(N); y = x;
 xx = repmat(x',N+1,1); yy = repmat(y,1,N+1);
