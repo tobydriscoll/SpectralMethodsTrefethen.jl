@@ -1,6 +1,5 @@
 # p28.jl - eigenmodes of Laplacian on the disk (compare p22.jl)
 
-using PyPlot
 # r coordinate, ranging from -1 to 1 (N must be odd):
 N = 25; N2 = Int((N-1)/2);
 (D,r) = cheb(N); D2 = D^2;

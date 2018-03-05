@@ -7,7 +7,7 @@ v = @. exp(-100*(x-1).^2); vold = @. exp(-100*(x-.2*dt-1).^2);
 
 # Time-stepping by leap frog formula:
 tmax = 8; tplot = .15;
-using PyPlot; clf();
+clf();
 plotgap = round(tplot/dt); dt = tplot/plotgap;
 nplots = Integer(round(tmax/tplot));
 data = [v zeros(N,nplots)]; tdata = t;

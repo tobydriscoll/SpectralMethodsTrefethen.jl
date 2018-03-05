@@ -1,7 +1,6 @@
 # p24.jl - pseudospectra of Davies's complex harmonic oscillator
 #         (For finer, slower plot, change 0:2 to 0:.5.)
 
-using PyPlot
 # Eigenvalues:
 N = 70; (D,x) = cheb(N); x = x[2:N];
 L = 6; x = L*x; D = D/L;                   # rescale to [-L,L]

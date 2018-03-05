@@ -1,7 +1,6 @@
 # p17.jl - Helmholtz eq. u_xx + u_yy + (k^2)u = f
 #         on [-1,1]x[-1,1]    (compare p16.jl)
 
-using Interpolations, PyPlot
 # Set up spectral grid and tensor product Helmholtz operator:
 N = 24; (D,x) = cheb(N); y = x;
 xx = x[2:N]; yy = y[2:N];

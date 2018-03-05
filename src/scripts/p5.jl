@@ -1,7 +1,7 @@
 # p5.jl - repetition of p4.jl via FFT
 #        For complex v, delete "real" commands.
 
-using PyPlot; clf();
+clf();
 # Differentiation of a hat function:
 N = 24; h = 2*pi/N; x = h*(1:N);
 v = @. max(0,1-abs(x-pi)/2); v_hat = fft(v);

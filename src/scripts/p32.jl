@@ -1,6 +1,5 @@
 # p32.jl - solve u_xx = exp(4x), u(-1)=0, u(1)=1 (compare p13.jl)
 
-using Polynomials
 N = 16;
 (D,x) = cheb(N);
 D2 = D^2;

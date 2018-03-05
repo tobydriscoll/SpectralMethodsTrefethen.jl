@@ -16,8 +16,7 @@ for N = 1:Nmax
 end
 
 # Plot results:
-using PyPlot; clf();
-using LaTeXStrings
+clf();
 titles = [L"|x|^3",L"\exp(-x^2)",L"1/(1+x^2)",L"x^{10}"];
 for iplot = 1:4
     subplot(2,2,iplot);

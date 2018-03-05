@@ -3,8 +3,8 @@ module SpectralMethodsTrefethen
 # Analogs for named functions in the book.
 export cheb, chebfft, clencurt, gauss
 
-# Required by many of the scripts.
-using PyPlot, Interpolations, Polynomials
+# Required by the scripts.
+using PyPlot, Interpolations, Polynomials, LaTeXStrings, SpecialFunctions
 
 # See if MATLAB is available/working.
 is_matlab_running = try
@@ -30,7 +30,11 @@ end
 
 ## Analogs of functions from the book.
 
-# CHEB  compute D = differentiation matrix, x = Chebyshev grid
+"""
+    cheb(N)
+
+Chebyshev differentiation matrix and grid.
+"""
 function cheb(N)
     N==0 && return 0,1;
     x = [ cos(pi*k/N) for k=0:N ];
@@ -41,9 +45,14 @@ function cheb(N)
     return D,x
 end
 
-# CHEBFFT  Chebyshev differentiation via FFT. Simple, not optimal.
-#          If v is complex, delete "real" commands.
+
+"""
+    chebfft(v)
+
+Differentiate values given at Chebyshev points via the FFT.
+"""
 function chebfft(v)
+    # Simple, not optimal. If v is complex, delete "real" commands.
     N = length(v)-1;
     N==0 && return 0;
     x = [ cos(pi*k/N) for k=0:N ];
@@ -58,8 +67,11 @@ function chebfft(v)
     return w
 end
 
-# CLENCURT  nodes x (Chebyshev points) and weights w
-#           for Clenshaw-Curtis quadrature
+"""
+    clencurt(N)
+
+Nodes and weights for Clenshaw-Curtis quadrature
+"""
 function clencurt(N)
     θ = [ pi*i/N for i=0:N ];
     x = cos.(θ);
@@ -82,8 +94,11 @@ function clencurt(N)
     return x,w
 end
 
-# GAUSS  nodes x (Legendre points) and weights w
-#        for Gauss quadrature
+"""
+    gauss(N)
+
+Nodes and weights for Gauss quadrature
+"""
 function gauss(N)
     β = [ .5/sqrt(1-1/(2*i)^2) for i = 1:N-1 ];
     T = diagm(β,1) + diagm(β,-1);
@@ -94,6 +109,12 @@ function gauss(N)
 end
 
 ## Stand-in for the native toeplitz function in MATLAB.
+"""
+    toeplitz(col[,row])
+
+Construct Toeplitz matrix from first column and first row. If the row is not
+given, the result is symmetric.
+"""
 function toeplitz(col,row=col)
     m,n = length(col),length(row);
     col[1]==row[1] || warn("Column wins conflict on the diagonal.");
@@ -113,7 +134,7 @@ for (root, dirs, files) in walkdir(joinpath(Pkg.dir("SpectralMethodsTrefethen"),
         ismatch(r"\.jl$",file) || continue
         basename = file[1:end-3];
         fundef = quote
-            function $(Symbol(basename))(;julia=true,matlab=$is_matlab_running)
+            function $(Symbol(basename))(;julia=true,matlab=$is_matlab_running,source=false)
                 println(join(["Running script ",$basename,"..."]));
                 if julia
                     println("Julia version:");
@@ -122,6 +143,10 @@ for (root, dirs, files) in walkdir(joinpath(Pkg.dir("SpectralMethodsTrefethen"),
                 if matlab
                     println("MATLAB version:");
                     tic(); eval_string($basename); t=[t;toc()];
+                end
+                if source
+                    julia ? edit(joinpath($root,$file)) : nothing;
+                    matlab ? edit(joinpath($root,"..","..","matlab",$basename * ".m")) : nothing;
                 end
                 return t
             end

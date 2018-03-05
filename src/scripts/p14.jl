@@ -1,7 +1,6 @@
 # p14.jl - solve nonlinear BVP u_xx = exp(u), u(-1)=u(1)=0
 #         (compare p13.jl)
 
-using Polynomials
 N = 16;
 (D,x) = cheb(N); D2 = D^2; D2 = D2[2:N,2:N];
 u = zeros(N-1);

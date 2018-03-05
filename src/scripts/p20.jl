@@ -1,6 +1,5 @@
 # p20.m - 2nd-order wave eq. in 2D via FFT (compare p19.m)
 
-using PyPlot, Interpolations
 # Grid and initial data:
 N = 24; x = y = cheb(N)[2];
 dt = 6/N^2;

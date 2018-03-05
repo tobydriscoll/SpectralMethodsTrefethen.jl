@@ -1,6 +1,5 @@
 # p6u.jl - variable coefficient wave equation - UNSTABLE VARIANT
 
-using PyPlot
 # Grid, variable coefficient, and initial data:
 N = 128; h = 2*pi/N; x = h*(1:N);
 c = @. .2 + sin(x-1)^2;

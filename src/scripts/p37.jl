@@ -1,6 +1,5 @@
 # p37.jl - 2D "wave tank" with Neumann BCs for |y|=1
 
-using PyPlot
 # x variable in [-A,A], Fourier:
 A = 3; Nx = 50; dx = 2*A/Nx; x = -A+dx*(1:Nx);
 D2x = (pi/A)^2*toeplitz([-1/(3*(dx/A)^2)-1/6;

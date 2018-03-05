@@ -1,7 +1,6 @@
 # p29.jl - solve Poisson equation on the unit disk
 #         (compare p16.jl and p28.jl)
 
-using PyPlot
 # Laplacian in polar coordinates:
 N = 25; N2 = Int((N-1)/2);
 (D,r) = cheb(N); D2 = D^2;

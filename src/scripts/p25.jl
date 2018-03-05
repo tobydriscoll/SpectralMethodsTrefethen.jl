@@ -1,6 +1,5 @@
 # p25.jl - stability regions for ODE formulas
 
-using PyPlot
 # Adams-Bashforth:
 clf(); subplot(221);
 zplot(z) = plot(real(z),imag(z));

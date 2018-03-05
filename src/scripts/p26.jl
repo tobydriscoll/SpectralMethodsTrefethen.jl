@@ -1,6 +1,5 @@
 # p26.m - eigenvalues of 2nd-order Chebyshev diff. matrix
 
-using PyPlot,Polynomials
 N = 60; (D,x) = cheb(N); D2 = D^2; D2 = D2[2:N,2:N];
 (lam,V) = eig(D2);
 ii = sortperm(-lam); e = lam[ii]; V = V[:,ii];

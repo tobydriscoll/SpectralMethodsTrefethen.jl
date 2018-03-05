@@ -1,5 +1,4 @@
 # p1.jl - convergence of fourth-order finite differences
-using PyPlot
 
 # For various N, set up grid in [-pi,pi] and function u(x):
 Nvec = 2.^(3:12);  clf()

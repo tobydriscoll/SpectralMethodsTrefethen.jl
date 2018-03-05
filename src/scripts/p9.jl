@@ -1,8 +1,7 @@
 # p9.jl - polynomial interpolation in equispaced and Chebyshev pts
 
-using Polynomials
 N = 16; xx = -1.01:.005:1.01;
-using PyPlot;  clf();
+clf();
 for i = 1:2
     i==1 && ( (s,x) = ("equispaced points", -1 + 2*(0:N)/N) );
     i==2 && ( (s,x) = ("Chebyshev points", cos.(pi*(0:N)/N)) );

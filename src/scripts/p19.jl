@@ -1,6 +1,5 @@
 # p19.jl - 2nd-order wave eq. on Chebyshev grid (compare p6.jl)
 
-using PyPlot
 # Time-stepping by leap frog formula:
 N = 80; x = cheb(N)[2]; dt = 8/N^2;
 v = @. exp(-200*x^2); vold = @. exp(-200*(x-dt)^2);

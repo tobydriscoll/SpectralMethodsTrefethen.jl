@@ -1,7 +1,6 @@
 # p21.jl - eigenvalues of Mathieu operator -u_xx + 2qcos(2x)u
 #         (compare p8.jl and p. 724 of Abramowitz & Stegun)
 
-using PyPlot
 N = 42; h = 2*pi/N; x = h*(1:N);
 D2 = toeplitz([-pi^2/(3*h^2)-1/6; @. -.5*(-1)^(1:N-1)/sin(h*(1:N-1)/2)^2]);
 qq = 0:.2:15; data = [];

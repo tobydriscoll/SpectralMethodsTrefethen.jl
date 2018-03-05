@@ -1,6 +1,6 @@
 # p3.jl - band-limited interpolation
 
-using PyPlot;  clf();
+clf();
 h = 1; xmax = 10;
 x = -xmax:h:xmax;                     # computational grid
 xx = -xmax-h/20:h/10:xmax+h/20;       # plotting grid

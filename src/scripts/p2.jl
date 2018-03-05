@@ -1,6 +1,5 @@
 # p2.jl - convergence of periodic spectral method (compare p1.jl)
 
-using PyPlot
 clf();
 # For various N (even), set up grid as before:
 for N = 2:2:100

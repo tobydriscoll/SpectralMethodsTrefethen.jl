@@ -20,8 +20,7 @@ for j = eachindex(allN)
 end
 
 # Plot results:
-using PyPlot; clf();
-using LaTeXStrings
+clf();
 titles = [L"|\sin(x)|^3",L"\exp(-\sin^{-2}(x/2))",L"1/(1+\sin^2(x/2))",L"\sin(10x)"];
 for iplot = 1:4
     subplot(2,2,iplot);

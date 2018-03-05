@@ -1,11 +1,10 @@
 # p15.jl - solve eigenvalue BVP u_xx = lambda*u, u(-1)=u(1)=0
 
-using Polynomials
 N = 36; (D,x) = cheb(N); D2 = D^2; D2 = D2[2:N,2:N];
 (lam,V) = eig(D2);
 ii = sortperm(-lam);          # sort eigenvalues and -vectors
 lam = lam[ii]; V = V[:,ii];
-using PyPlot; clf();
+clf();
 for j = 5:5:30                  # plot 6 eigenvectors
     u = [0;V[:,j];0]; subplot(6,1,j/5)
     plot(x,u,".",markersize=8); grid(true);

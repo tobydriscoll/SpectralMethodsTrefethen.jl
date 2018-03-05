@@ -1,6 +1,5 @@
 # p10.jl - polynomials and corresponding equipotential curves
-using PyPlot;  clf();
-using Polynomials
+clf();
 N = 16;
 xx = -1.01:.005:1.01;
 for i = 1:2

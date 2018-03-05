@@ -1,6 +1,5 @@
 # p13.jl - solve linear BVP u_xx = exp(4x), u(-1)=u(1)=0
 
-using  Polynomials
 N = 16;
 (D,x) = cheb(N);
 D2 = D^2;

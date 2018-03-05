@@ -1,7 +1,6 @@
 # p27.jl - Solve KdV eq. u_t + uu_x + u_xxx = 0 on [-pi,pi] by
 #         FFT with integrating factor v = exp(-ik^3t)*u-hat.
 
-using PyPlot
 # Set up grid and two-soliton initial data:
 N = 256; dt = .4/N^2; x = (2*pi/N)*(-N/2:N/2-1);
 A = 25; B = 16; clf();

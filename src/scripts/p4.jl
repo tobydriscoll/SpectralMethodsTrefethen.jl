@@ -1,5 +1,5 @@
 # p4.jl - periodic spectral differentiation
-using PyPlot;  clf();
+clf();
 # Set up grid and differentiation matrix:
 N = 24; h = 2*pi/N; x = h*(1:N);
 column = [0; @. .5*(-1)^(1:N-1)*cot((1:N-1)*h/2)];
