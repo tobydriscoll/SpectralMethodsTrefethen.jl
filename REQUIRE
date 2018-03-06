@@ -3,3 +3,5 @@ PyPlot 2.3.2
 MATLAB 0.6.1
 Polynomials 0.2.1
 Interpolations 0.7.3
+LaTeXStrings 0.3.0
+SpecialFunctions 0.3.5

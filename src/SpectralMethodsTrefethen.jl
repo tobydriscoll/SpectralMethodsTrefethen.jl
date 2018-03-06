@@ -149,6 +149,9 @@ for (root, dirs, files) in walkdir(joinpath(Pkg.dir("SpectralMethodsTrefethen"),
                     matlab ? edit(joinpath($root,"..","..","matlab",$basename * ".m")) : nothing;
                 end
                 return t
+
+                function thescript()
+
             end
         end
         eval(fundef);
