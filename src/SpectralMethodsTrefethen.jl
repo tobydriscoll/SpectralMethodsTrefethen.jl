@@ -3,8 +3,8 @@ module SpectralMethodsTrefethen
 # Analogs for named functions in the book.
 export cheb, chebfft, clencurt, gauss
 
-# Required by the scripts.
-using PyPlot, Interpolations, Polynomials, LaTeXStrings, SpecialFunctions
+# Required by the scripts, so must be in parent scope
+eval(module_parent(current_module()),:(using PyPlot, Interpolations, Polynomials, LaTeXStrings, SpecialFunctions))
 
 # See if MATLAB is available/working.
 is_matlab_running = try
@@ -15,8 +15,9 @@ catch exc
     false
 end
 
-# Now see if it can find our files.
-if is_matlab_running
+# Now see if it can find our files. We have to prevent the compiler from
+# dealing with the MATLAB package functions, if that was not loaded successfully.
+set_dir = quote
     is_matlab_running = try
         local d = joinpath(Pkg.dir("SpectralMethodsTrefethen"),"matlab");
         eval_string("mfiledir = cd('$d');");
@@ -26,6 +27,10 @@ if is_matlab_running
         warn("MATLAB cannot find package files. Continuing without MATLAB.");
         false
     end
+end;
+
+if is_matlab_running
+    eval(set_dir)
 end
 
 ## Analogs of functions from the book.
@@ -109,6 +114,7 @@ function gauss(N)
 end
 
 ## Stand-in for the native toeplitz function in MATLAB.
+export toeplitz
 """
     toeplitz(col[,row])
 
@@ -130,13 +136,13 @@ export p21, p22, p23, p24, p25, p26, p27, p28, p29, p30
 export p31, p32, p33, p34, p35, p36, p37, p38, p39, p40
 export p6u, p23a, p24fine, p28b, p30b, p30c
 for (root, dirs, files) in walkdir(joinpath(Pkg.dir("SpectralMethodsTrefethen"),"src","scripts"))
-    for file in files
-        ismatch(r"\.jl$",file) || continue
+    for file in filter(x->endswith(x,".jl"),files)
         basename = file[1:end-3];
         fundef = quote
             function $(Symbol(basename))(;julia=true,matlab=$is_matlab_running,source=false)
                 println(join(["Running script ",$basename,"..."]));
                 if julia
+                    # Packages are needed in Main scope for include()
                     println("Julia version:");
                     tic(); include(joinpath($root,$file)); t=toc();
                 end
@@ -149,8 +155,6 @@ for (root, dirs, files) in walkdir(joinpath(Pkg.dir("SpectralMethodsTrefethen"),
                     matlab ? edit(joinpath($root,"..","..","matlab",$basename * ".m")) : nothing;
                 end
                 return t
-
-                function thescript()
 
             end
         end
