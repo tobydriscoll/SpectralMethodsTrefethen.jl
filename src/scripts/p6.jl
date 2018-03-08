@@ -6,10 +6,9 @@ c = @. .2 + sin(x-1)^2;
 v = @. exp(-100*(x-1).^2); vold = @. exp(-100*(x-.2*dt-1).^2);
 
 # Time-stepping by leap frog formula:
-tmax = 8; tplot = .15;
-clf();
+tmax = 8; tplot = .15; clf();
 plotgap = round(tplot/dt); dt = tplot/plotgap;
-nplots = Integer(round(tmax/tplot));
+nplots = round(Int,tmax/tplot);
 data = [v zeros(N,nplots)]; tdata = t;
 for i = 1:nplots
     for n = 1:plotgap
@@ -21,6 +20,6 @@ for i = 1:nplots
     end
     data[:,i+1] = v; tdata = [tdata; t];
 end
-mesh(x,tdata,data',ccount=0);
+mesh(x,tdata,data',ccount=0); view(10,70);
 xlim(0,2*pi); ylim(0,tmax); zlim(0,5);
-xlabel("x"); ylabel("t"); zlabel("u"); gca()[:view_init](70,10-90);
+xlabel("x"); ylabel("t"); zlabel("u");

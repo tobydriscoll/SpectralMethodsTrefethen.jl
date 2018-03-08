@@ -1,7 +1,8 @@
 # p1.jl - convergence of fourth-order finite differences
 
 # For various N, set up grid in [-pi,pi] and function u(x):
-Nvec = 2.^(3:12);  clf()
+Nvec = 2.^(3:12);
+clf(); axes([.1,.4,.8,.5]);
 for N = Nvec
     h = 2*pi/N; x = -pi + (1:N)*h;
     u = @. exp(sin(x)^2);
@@ -14,9 +15,9 @@ for N = Nvec
 
     # Plot max(abs(D*u-uprime)):
     error = norm(D*u-uprime,Inf);
-    loglog(N,error,".",markersize=12);
+    loglog(N,error,"k.",markersize=6);
 end
+grid(true); xlabel("N"); ylabel("error");
 title("Convergence of fourth-order finite differences");
-xlabel("N");  ylabel("error");
-loglog(Nvec,1./float(Nvec).^4,"--");
-text(105,5e-8,"\$N^{-4}\$",fontsize=18);
+loglog(Nvec,1.0./Nvec.^4,"--");
+text(105,5e-8,L"N^{-4}",fontsize=18);
