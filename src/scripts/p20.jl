@@ -13,13 +13,12 @@ for n = 0:3*plotgap
     t = n*dt;
     if rem(n+.5,plotgap)<1     # plots at multiples of t=1/3
           i = n/plotgap+1;
-          figure(i); clf();
+          subplot(2,2,i,projection="3d");
           xxx = yyy = -1:1/16:1;
-          s = interpolate((xx,yy),reduce(flipdim,vv,1:2),Gridded(Linear()));
-          vvv = s[xxx,yyy];
+          s = Spline2D(xx,yy,reduce(flipdim,vv,1:2));
+          vvv = evalgrid(s,xxx,yyy);
           surf(xxx,yyy,vvv); xlim(-1,1); ylim(-1,1); zlim(-0.15,1);
-          gca()[:view_init](30,-127.5);
-          title("t = $t");
+          view(-37.5,30); title("t = $(signif(t,5))");
     end
     uxx = zeros(N+1,N+1); uyy = zeros(N+1,N+1);
     ii = 2:N;

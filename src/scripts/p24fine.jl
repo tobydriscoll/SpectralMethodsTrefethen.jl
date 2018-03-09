@@ -6,13 +6,12 @@ N = 70; (D,x) = cheb(N); x = x[2:N];
 L = 6; x = L*x; D = D/L;                   # rescale to [-L,L]
 A = -D^2; A = A[2:N,2:N] + (1+3im)*diagm(x.^2);
 lambda = eigvals(A);
-clf(); plot(real(lambda),imag(lambda),".",markersize=10);
+clf(); plot(real(lambda),imag(lambda),"k.",markersize=6);
 axis([0,50,0,40]);
 
 # Pseudospectra:
 x = 0:.5:50; y = 0:.5:40;
 I = eye(N-1);
-tic()
-sigmin = map( z->minimum(svdvals(z*I-A))[1], x'.+1im*y );
-toc()
-contour(x,y,log10.(sigmin),levels=(-4:.5:-.5));
+tminsvd(z) = minimum(svdvals(z*I-A));
+sigmin = [ minsvd(x[i]+1im*y[j]) for i=eachindex(x), j=eachindex(y) ];
+contour(x,y,sigmin',levels=10.0.^(-4:.5:-.5));

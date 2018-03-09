@@ -4,14 +4,14 @@ N = 16;
 (D,x) = cheb(N);
 D2 = D^2;
 D2 = D2[2:N,2:N];                   # boundary conditions
-f = exp(4*x[2:N]);
+f = @. exp(4*x[2:N]);
 u = D2\f;                           # Poisson eq. solved here
 u = [0;u;0];
-clf();
-plot(x,u,".",markersize=12)
+clf(); axes([.1,.4,.8,.5]);
+plot(x,u,".",markersize=6);
 xx = -1:.01:1;
 uu = polyval(polyfit(x,u),xx);      # interpolate grid data
 plot(xx,uu);
 grid(true);
 exact = @. ( exp(4*xx) - sinh(4)*xx - cosh(4) )/16;
-title("max err = $(norm(uu-exact,Inf))",fontsize=12);
+title("max err = $(signif(norm(uu-exact,Inf),4))",fontsize=12);

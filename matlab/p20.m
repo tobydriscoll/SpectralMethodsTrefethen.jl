@@ -6,7 +6,7 @@
   [xx,yy] = meshgrid(x,y);
   plotgap = round((1/3)/dt); dt = (1/3)/plotgap;
   vv = exp(-40*((xx-.4).^2 + yy.^2));
-  vvold = vv; 
+  vvold = vv;
 
 % Time-stepping by leap frog formula:
   [ay,ax] = meshgrid([.56 .06],[.1 .55]); clf
@@ -27,17 +27,17 @@
       U = real(fft(V));
       W1 = real(ifft(1i*[0:N-1 0 1-N:-1].*U)); % diff wrt theta
       W2 = real(ifft(-[0:N 1-N:-1].^2.*U));    % diff^2 wrt theta
-      uxx(i,ii) = W2(ii)./(1-x(ii).^2) - x(ii).* ... 
+      uxx(i,ii) = W2(ii)./(1-x(ii).^2) - x(ii).* ...
                      W1(ii)./(1-x(ii).^2).^(3/2);
     end
     for j = 2:N                % 2nd derivs wrt y in each column
       v = vv(:,j); V = [v; flipud(v(ii))];
       U = real(fft(V));
-      W1 = real(ifft(1i*[0:N-1 0 1-N:-1]'.*U));% diff wrt theta   
+      W1 = real(ifft(1i*[0:N-1 0 1-N:-1]'.*U));% diff wrt theta
       W2 = real(ifft(-[0:N 1-N:-1]'.^2.*U));   % diff^2 wrt theta
       uyy(ii,j) = W2(ii)./(1-y(ii).^2) - y(ii).* ...
                      W1(ii)./(1-y(ii).^2).^(3/2);
     end
-    vvnew = 2*vv - vvold + dt^2*(uxx+uyy); 
+    vvnew = 2*vv - vvold + dt^2*(uxx+uyy);
     vvold = vv; vv = vvnew;
   end

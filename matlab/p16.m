@@ -6,7 +6,7 @@
   xx = xx(:); yy = yy(:);       % stretch 2D grids to 1D vectors
   f = 10*sin(8*xx.*(yy-1));
   D2 = D^2; D2 = D2(2:N,2:N); I = eye(N-1);
-  L = kron(I,D2) + kron(D2,I);                       % Laplacian 
+  L = kron(I,D2) + kron(D2,I);                       % Laplacian
   figure(1), clf, spy(L), drawnow
   tic, u = L\f; toc          % solve problem and watch the clock
 

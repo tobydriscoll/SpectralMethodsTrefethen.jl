@@ -16,11 +16,10 @@ for N = 1:Nmax
 end
 
 # Plot results:
-clf();
-titles = [L"|x|^3",L"\exp(-x^2)",L"1/(1+x^2)",L"x^{10}"];
+titles = [L"|x|^3",L"\exp(-x^2)",L"1/(1+x^2)",L"x^{10}"];  clf();
 for iplot = 1:4
     subplot(2,2,iplot);
-    semilogy(1:Nmax,E[iplot,:],".-",markersize=10);
+    semilogy(1:Nmax,E[iplot,:],".-",markersize=6);
     axis([0,Nmax,1e-16,1e3]); grid(true);
     xticks(0:10:Nmax); yticks(10.0.^(-15:5:0));
     title(titles[iplot]);

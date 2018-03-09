@@ -18,6 +18,5 @@ xxx = yyy = -1:.04:1;
 s = interpolate((x[end:-1:1],y[end:-1:1]),uu,Gridded(Linear()));
 uuu = s[xxx,yyy];
 figure(2); clf(); surf(xxx,yyy,uuu,rstride=1,cstride=1);
-xlabel("x"); ylabel("y"); zlabel("u");
-gca()[:view_init](30,-127.5);
-text3D(.4,-.3,-.3,"\$u(2^{-1/2},2^{-1/2})\$ = $value");
+xlabel("x"); ylabel("y"); zlabel("u"); view(-37.5,30);
+text3D(.4,-.3,-.3,"\$u(2^{-1/2},2^{-1/2})\$ = $(signif(value,11))",fontsize=9);

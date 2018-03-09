@@ -3,11 +3,10 @@
 N = 36; (D,x) = cheb(N); D2 = D^2; D2 = D2[2:N,2:N];
 (lam,V) = eig(D2);
 ii = sortperm(-lam);          # sort eigenvalues and -vectors
-lam = lam[ii]; V = V[:,ii];
-clf();
+lam = lam[ii]; V = V[:,ii]; clf();
 for j = 5:5:30                  # plot 6 eigenvectors
-    u = [0;V[:,j];0]; subplot(6,1,j/5)
-    plot(x,u,".",markersize=8); grid(true);
+    u = [0;V[:,j];0]; subplot(7,1,j/5)
+    plot(x,u,".",markersize=6); grid(true);
     xx = -1:.01:1; uu = polyval(polyfit(x,u),xx);
     plot(xx,uu); axis("off");
     text(-.4,.1,"eig $j = $(lam[j]*4/pi^2) π^2/4");

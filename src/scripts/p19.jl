@@ -17,6 +17,5 @@ end
 
 # Plot results:
 clf(); mesh(x,tdata,plotdata',ccount=0,rcount=N+1);
-axis([-1,1,0,tmax]); zlim(-2,2); grid(false);
-gca()[:view_init](70,10+90);
+axis([-1,1,0,tmax]); zlim(-2,2); view(10,70); grid(false);
 xlabel("x"); ylabel("t"); zlabel("u");

@@ -23,8 +23,7 @@ for n = 1:nmax
         udata = [udata u]; tdata = [tdata;t];
     end
 end
-mesh(x,tdata,udata',ccount=0,rcount=N);
-gca()[:view_init](25,90-20);
+mesh(x,tdata,udata',ccount=0,rcount=N); view(-20,25);
 xlabel("x"); ylabel("y"); grid(true);
-xlim(-pi,pi); ylim(0,tmax); zlim(0,10000);|
+xlim(-pi,pi); ylim(0,tmax); zlim(0,12000);|
 zticks([0,2000]);

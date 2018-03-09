@@ -7,7 +7,7 @@ for N = 12:12:48
     ii = find(lam.>0);
     V = V[:,ii]; lam = lam[ii];
     ii = sortperm(lam)[5]; lambda = lam[ii];
-    v = [0;V[:,ii];0]; v = v/v[Int(N/2+1)]*airy(0);
+    v = [0;V[:,ii];0]; v = v/v[Int(N/2+1)]*airyai(0);
     xx = -1:.01:1; vv = polyval(polyfit(x,v),xx);
     subplot(2,2,N/12); plot(xx,vv); grid(true)
     title("N = $N     eig = $(signif(lambda,13))");

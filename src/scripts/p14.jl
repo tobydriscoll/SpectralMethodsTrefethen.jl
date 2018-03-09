@@ -11,8 +11,8 @@ while change > 1e-15                   # fixed-point iteration
     u = unew; it = it+1;
 end
 u = [0;u;0];
-clf();
-plot(x,u,".",markersize=12)
+clf(); axes([.1,.4,.8,.5]);
+plot(x,u,".",markersize=6);
 xx = -1:.01:1;
 uu = polyval(polyfit(x,u),xx);
 plot(xx,uu), grid(true);
