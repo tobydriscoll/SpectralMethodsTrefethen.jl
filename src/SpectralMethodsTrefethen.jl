@@ -4,7 +4,7 @@ module SpectralMethodsTrefethen
 export cheb, chebfft, clencurt, gauss
 
 # Required by the scripts, so must be in parent scope
-eval(module_parent(current_module()),:(using PyPlot, Interpolations, Polynomials, LaTeXStrings, SpecialFunctions))
+eval(module_parent(current_module()),:(using PyPlot, Dierckx, Polynomials, LaTeXStrings, SpecialFunctions))
 
 # Required to define view() below
 using PyPlot: gca
@@ -159,10 +159,12 @@ for (root, dirs, files) in walkdir(joinpath(Pkg.dir("SpectralMethodsTrefethen"),
                 if julia
                     # Packages are needed in Main scope for include()
                     println("Julia version:");
+                    close("all")
                     tic(); include(joinpath($root,$file)); t=toc();
                 end
                 if matlab
                     println("MATLAB version:");
+                    eval_string("close all");
                     tic(); eval_string($basename); t=[t;toc()];
                 end
                 if source
