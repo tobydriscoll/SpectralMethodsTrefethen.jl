@@ -6,6 +6,9 @@ export cheb, chebfft, clencurt, gauss
 # Required by the scripts, so must be in parent scope
 eval(module_parent(current_module()),:(using PyPlot, Interpolations, Polynomials, LaTeXStrings, SpecialFunctions))
 
+# Required to define view() below
+using PyPlot: gca
+
 # See if MATLAB is available/working.
 is_matlab_running = try
     using MATLAB
@@ -22,6 +25,8 @@ set_dir = quote
         local d = joinpath(Pkg.dir("SpectralMethodsTrefethen"),"matlab");
         eval_string("mfiledir = cd('$d');");
         @mget mfiledir;
+        # At some point MATLAB started warning for 2D 'cubic' interp.
+        eval_string("warning off MATLAB:griddedInterpolant:CubicUniformOnlyWarnId");
         true
     catch
         warn("MATLAB cannot find package files. Continuing without MATLAB.");
