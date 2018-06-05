@@ -1,0 +1,8 @@
+authors = ["Toby Driscoll <driscoll@udel.edu>"]
+name = "SpectralMethodsTrefethen"
+uuid = "a387b8ea-68e5-11e8-2359-c58c5a8197f3"
+version = "0.1.0"
+
+[deps]
+Polynomials = "f27b6e38-b328-58d1-80ce-0feddd5e7a45"
+PyPlot = "d330b81b-6aea-500a-939a-2ce795aea3ee"
