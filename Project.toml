@@ -4,5 +4,8 @@ uuid = "a387b8ea-68e5-11e8-2359-c58c5a8197f3"
 version = "0.1.0"
 
 [deps]
+Dierckx = "39dd38d3-220a-591b-8e3c-4c3a8c710a94"
+LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 Polynomials = "f27b6e38-b328-58d1-80ce-0feddd5e7a45"
 PyPlot = "d330b81b-6aea-500a-939a-2ce795aea3ee"
+SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"

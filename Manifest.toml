@@ -37,6 +37,12 @@ uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
 [[DelimitedFiles]]
 uuid = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 
+[[Dierckx]]
+deps = ["Compat"]
+git-tree-sha1 = "e7edd9849421137b654a2a760aaa510a8d1da9b5"
+uuid = "39dd38d3-220a-591b-8e3c-4c3a8c710a94"
+version = "0.3.0"
+
 [[Distributed]]
 uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 
@@ -140,6 +146,12 @@ uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
 
 [[SparseArrays]]
 uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
+
+[[SpecialFunctions]]
+deps = ["BinDeps", "Compat", "Libdl"]
+git-tree-sha1 = "a674e75798a737de67d6860b29a9e56a13d7639f"
+uuid = "276daf66-3868-5448-9aa4-cd146d93841b"
+version = "0.4.0"
 
 [[SuiteSparse]]
 uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
