@@ -1,23 +1,24 @@
 # p26.m - eigenvalues of 2nd-order Chebyshev diff. matrix
 
-N = 60; (D,x) = cheb(N); D2 = D^2; D2 = D2[2:N,2:N];
-(lam,V) = eig(D2);
-ii = sortperm(-lam); e = lam[ii]; V = V[:,ii];
+N = 60
+D,x = cheb(N)
+D2 = D^2
+D2 = D2[2:N,2:N]
+λ,V = eigen(-D2)
 
+plt = plot(layout = grid(3,1,heights=[0.5,0.25,0.25]))
 # Plot eigenvalues:
-clf(); axes([.1, .62, .8, .3]);
-loglog(-e,".",markersize=4); ylabel("eigenvalue");
-title("N = $N       max |λ| = $(signif(maximum(-e)/N^4,5)) \$N^4\$");
-semilogy(2*N/pi*[1,1],[1,1e6],"--r");
-text(2.1*N/pi,24,"2π / N",fontsize=12);
+str = "N = $N       max |\\lambda| = $(round(maximum(λ)/N^4,sigdigits=5)) N^4"
+scatter!(λ,subplot=1,xaxis=:log,yaxis=(:log,"eigenvalue"),title=str)
+plot!(2*N/π*[1,1],[1,1e6],l=(:dash,:red),subplot=1)
+annotate!(1.9*N/π,24,text(L"2\pi / N",:right,9),subplot=1)
 
 # Plot eigenmodes N/4 (physical) and N (nonphysical):
-vN4 = [0; V[:,Int(N/4-1)]; 0];
-xx = -1:.01:1; vv = polyval(polyfit(x,vN4),xx);
-axes([.1, .36, .8, .15]); plot(xx,vv);
-plot(x,vN4,"k.",markersize=4); title("eigenmode N/4");
+xx = -1:.01:1
+vN4 = [0; V[:,Int(N/4-1)]; 0]
+vv = polyval(polyfit(x,vN4),xx)
+plot!(xx,vv,subplot=2,yaxis=[-0.2,0,0.2])
+scatter!(x,vN4,subplot=2,title="eigenmode N/4")
+
 vN = V[:,N-1];
-axes([.1, .1, .8, .15]);
-semilogy(x[2:N],abs.(vN)); axis([-1,1,5e-6,1]);
-plot(x[2:N],abs.(vN),"k.",markersize=4);
-title("absolute value of eigenmode N    (log scale)");
+plot!(x[2:N],abs.(vN),m=4,subplot=3,yaxis=(:log,10.0.^[-5,-3,-1]),title="absolute value of eigenmode N  (log scale)")

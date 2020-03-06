@@ -12,13 +12,10 @@ k = [0:N/2-1;0;-N/2+1:-1]
 ik3 = 1im*k.^3
 g = -0.5im*dt*k
 
-# Solve PDE and plot results:
+# Solve PDE and animate results:
 tmax = 0.006
-nplt = floor(Int,(tmax/25)/dt)
-nmax = round(Int,tmax/dt)
-udata = u
-tdata = [0.0]
-for n = 1:nmax
+nplt = floor(Int,(tmax/60)/dt)
+anim = @animate for n = 1:round(Int,tmax/dt)
     global û
     t = n*dt
     E = exp.(dt*ik3/2)
@@ -28,13 +25,7 @@ for n = 1:nmax
     c = g.*fft(real( ifft(E.*û + b/2) ).^2)     # Runge-Kutta
     d = g.*fft(real( ifft(E2.*û+E.*c) ).^2)
     û = @. E2*û + (E2*a + 2*E*(b+c) + d)/6
-    global udata
-    global tdata
-    if mod(n,nplt) == 0
-        u = real(ifft(û))
-        udata = [udata u]
-        tdata = [tdata;t]
-    end
-end
-plt = surface(x,tdata,udata',camera=(-20,55),
-  xaxis=((-π,π),"x"),yaxis=("y"),zaxis=((0,3000),[0,0,2000]) )
+    str = "t = $(round(t,digits=5))"
+    plot(x,real(ifft(û)),xaxis=((-π,π),"x"),ylims=[0,2000],title=str)
+end every nplt
+plt = gif(anim,"p27anim.gif",fps=15)

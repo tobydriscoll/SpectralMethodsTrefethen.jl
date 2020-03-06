@@ -1,24 +1,30 @@
-# p39.m - eigenmodes of biharmonic on a square with clamped BCs
+# p39.m - eigenmodes of biharmonic on a square with cλped BCs
 #         (compare p38.m)
 
 # Construct spectral approximation to biharmonic operator:
-N = 17; (D,x) = cheb(N); D2 = D^2; D2 = D2[2:N,2:N];
-S = diagm([0; 1 ./(1-x[2:N].^2); 0]);
-D4 = (diagm(1-x.^2)*D^4 - 8*diagm(x)*D^3 - 12*D^2)*S;
-D4 = D4[2:N,2:N]; I = eye(N-1);
-L = kron(I,D4) + kron(D4,I) + 2*kron(D2,I)*kron(I,D2);
+N = 17
+D,x = cheb(N)
+D2 = D^2
+D2 = D2[2:N,2:N]
+S = Diagonal( [0; [1/(1-x^2) for x in x[2:N]]; 0] )
+D4 = (Diagonal(1 .- x.^2)*D^4 - 8*Diagonal(x)*D^3 - 12*D^2)*S
+D4 = D4[2:N,2:N]
+L = kron(I(N-1),D4) + kron(D4,I(N-1)) + 2*kron(D2,I(N-1))*kron(I(N-1),D2)
 
 # Find and plot 25 eigenmodes:
-(Lam,V) = eig(-L); Lam = -real(Lam);
-ii = sortperm(Lam)[1:25]; Lam = Lam[ii]; V = real(V[:,ii]);
-Lam = sqrt.(Lam/Lam[1]);
-y = x; xxx = yyy = -1:.01:1;
-sq = [1+1im,-1+1im,-1-1im,1-1im,1+1im]; clf();
+λ,V = eigen(L)
+λ,V = real(λ[1:25]),real(V[:,1:25])
+λ = sqrt.(λ/λ[1])
+y = x
+xx = yy = -1:.01:1
+sq = [1+1im,-1+1im,-1-1im,1-1im,1+1im]
+plt = plot(size=(800,800),layout=(5,5),aspect_ratio=1,framestyle=:none)
 for i = 1:25
-    uu = zeros(N+1,N+1); uu[2:N,2:N] = reshape(V[:,i],N-1,N-1);
-    subplot(5,5,i); plot(real(sq),imag(sq));
-    s = interpolate((x[end:-1:1],y[end:-1:1]),reduce(flipdim,uu,1:2),Gridded(Linear()));
-    contour(xxx,yyy,s[xxx,yyy],levels=[0],color="k"); axis("square");
-    axis(1.25*[-1,1,-1,1]); axis("off");
-    text(-.3,1.15,"$(signif(Lam[i],5))",fontsize=7);
+    U = zeros(N+1,N+1)
+    U[2:N,2:N] = reshape(V[:,i],N-1,N-1)
+    s = Spline2D(reverse(y),reverse(x),reverse(reverse(U,dims=1),dims=2))
+    UU = evalgrid(s,yy,xx)
+    contour!(xx,yy,UU,levels=[0],subplot=i,color=:black,
+        title=(@sprintf("%.6g",λ[i])),titlefontsize=8 )
+    plot!(real(sq),imag(sq),subplot=i)
 end

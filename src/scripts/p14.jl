@@ -1,19 +1,23 @@
 # p14.jl - solve nonlinear BVP u_xx = exp(u), u(-1)=u(1)=0
 #         (compare p13.jl)
 
-N = 16;
-(D,x) = cheb(N); D2 = D^2; D2 = D2[2:N,2:N];
-u = zeros(N-1);
-change = 1; it = 0;
-while change > 1e-15                   # fixed-point iteration
-    unew = D2\exp.(u);
-    change = norm(unew-u,Inf);
-    u = unew; it = it+1;
+N = 16
+D,x = cheb(N)
+D2 = D^2
+D2 = D2[2:N,2:N]
+u = zeros(N-1)
+it = 0
+while true                # fixed-point iteration
+    global u
+    global it
+    unew = D2\exp.(u)
+    change = norm(unew-u,Inf)
+    it += 1
+    u = unew
+    (change < 1e-15 || it > 99) && break
 end
-u = [0;u;0];
-clf(); axes([.1,.4,.8,.5]);
-plot(x,u,".",markersize=6);
-xx = -1:.01:1;
-uu = polyval(polyfit(x,u),xx);
-plot(xx,uu), grid(true);
-title("no. steps = $it      u(0) =$(u[Int(N/2+1)])")
+u = [0;u;0]
+plt = scatter(x,u,grid=true)
+xx = -1:.01:1
+uu = polyval(polyfit(x,u),xx)
+plot!(xx,uu,title="no. steps = $it,    u(0) =$(u[Int(N/2+1)])")

@@ -5,6 +5,7 @@
 N = 20
 D,x = cheb(N)
 D2 = D^2     # use full-size matrix
+D2[[1,N+1],:] .= 0                     # for convenience
 ϵ = 0.01
 t,dt = 0,min(.01,50/(N^4*ϵ))
 v = @. 0.53*x + 0.47*sin(-1.5π*x)
@@ -18,13 +19,10 @@ dt = tplot/plotgap
 ntime = round(Int,tmax/dt)
 xx = -1:.025:1
 vv = polyval(polyfit(x,v),xx);
-data = [vv zeros(length(vv),ntime)]
-t = [ n*dt for n in 0:ntime ]
-for i = 1:ntime
+anim = @animate for i = 0:ntime
     global v
-    v += dt*(ϵ*D2*(v-x) + v - v.^3)         # Euler
-    v[1],v[end] = 1 + sin(t[i]/5)^2, -1        # BC
-    data[:,i+1] = polyval(polyfit(x,v),xx)
-end
-plt = surface(xx,t[1:plotgap:end],data[:,1:plotgap:end]',cam=(30,50),color=:balance,
-    xaxis="x",yaxis="t",zaxis=("u(x,t)",(-1.05,2.05)) )
+    str = @sprintf("t = %0.3f",i*dt)
+    plot(xx,polyval(polyfit(x,v),xx),xlim=(-1,1),ylim=(-1,2),title=str)
+    v += dt*(ϵ*D2*(v-x) + v - v.^3)           # Euler
+end every plotgap
+plt = gif(anim,"p34anim.gif",fps=15)

@@ -2,25 +2,35 @@
 #         (compare p16.jl and p28.jl)
 
 # Laplacian in polar coordinates:
-N = 25; N2 = Int((N-1)/2);
-(D,r) = cheb(N); D2 = D^2;
-D1 = D2[2:N2+1,2:N2+1]; D2 = D2[2:N2+1,N:-1:N2+2];
-E1 =  D[2:N2+1,2:N2+1]; E2 =  D[2:N2+1,N:-1:N2+2];
-M = 20; dt = 2*pi/M; t = dt*(1:M); M2 = Int(M/2);
-D2t = toeplitz([-pi^2/(3*dt^2)-1/6; @. .5*(-1)^(2:M)/sin(dt*(1:M-1)/2)^2]);
-R = diagm(1./r[2:N2+1]); Z = zeros(M2,M2); I = eye(M2);
-L = kron(D1+R*E1,eye(M)) + kron(D2+R*E2,[Z I;I Z]) + kron(R^2,D2t);
+N,M = 25,20
+N2,M2 = Int((N-1)/2),Int(M/2)
+D,r = cheb(N)
+D2 = D^2
+D1 = D2[2:N2+1,2:N2+1]
+D2 = D2[2:N2+1,N:-1:N2+2]
+E1 =  D[2:N2+1,2:N2+1]
+E2 =  D[2:N2+1,N:-1:N2+2]
+dt = 2π/M
+t = dt*(1:M)
+col = [ 0.5*(-1)^(k+1)/sin(k*dt/2)^2 for k in 1:M-1 ]
+D2t = toeplitz([-pi^2/(3*dt^2)-1/6;col])
+
+# Laplacian in polar coordinates:
+R = Diagonal(1 ./ r[2:N2+1])
+Z = zeros(M2,M2)
+L = kron(D1+R*E1,I(M)) + kron(D2+R*E2,[Z I(M2);I(M2) Z]) + kron(R^2,D2t)
 
 # Right-hand side and solution for u:
-(rr,tt) = (r[2:N2+1]',t);
-f = @. -rr^2*sin(tt/2)^4 + sin(6*tt)*cos(tt/2)^2; u = L\f[:];
+f = [ -r^2*sin(θ/2)^4 + sin(6θ)*cos(θ/2)^2 for θ in t, r in r[2:N2+1] ]
+u = L\vec(f)
 
 # Reshape results onto 2D grid and plot them:
-u = reshape(u,M,N2); u = [zeros(M+1) u[[M;1:M],:]];
-(rr,tt) = (r[1:N2+1],t[[M;1:M]]);
-(xx,yy) = @. (cos(tt)*rr',sin(tt)*rr');
-clf();
-surf(xx,yy,u);
-gca()[:view_init](40,-70);
-xlim(-1,1); ylim(-1,1); zlim(-.01,.05);
-xlabel("x"); ylabel("y"); zlabel("z");
+U = reshape(u,M,N2)
+U = [zeros(M+1) U[[M;1:M],:]]
+rr = LinRange(r[N2+1],1,80)
+tt = (0:80)/80*2π
+UU = evalgrid(Spline2D([0;t],r[N2+1:-1:1],reverse(U,dims=2)),tt,rr)
+
+XX = [ r*cos(θ) for θ in tt, r in rr ]
+YY = [ r*sin(θ) for θ in tt, r in rr ]
+plt = surface(XX,YY,UU,color=:viridis,cam=(30,60),xaxis="x",yaxis="y",zaxis="u(x,y)")

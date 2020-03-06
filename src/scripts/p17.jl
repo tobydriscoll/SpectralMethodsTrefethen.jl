@@ -2,21 +2,25 @@
 #         on [-1,1]x[-1,1]    (compare p16.jl)
 
 # Set up spectral grid and tensor product Helmholtz operator:
-N = 24; (D,x) = cheb(N); y = x;
-xx = x[2:N]; yy = y[2:N];
-f = @. exp(-10*((yy-1)^2+(xx'-.5)^2));
-D2 = D^2; D2 = D2[2:N,2:N]; I = eye(N-1);
-k = 9;
-L = kron(I,D2) + kron(D2,I) + k^2*eye((N-1)^2);
+N = 24
+D,x = cheb(N)
+y = x
+f = [ exp(-10*((y-1)^2+(x-0.5)^2)) for y in y[2:N], x in x[2:N] ]
+D2 = D^2
+D2 = D2[2:N,2:N]
+k = 9
+L = kron(I(N-1),D2) + kron(D2,I(N-1)) + k^2*I                     # Laplacian
 
 # Solve for u, reshape to 2D grid, and plot:
-u = L\f[:];
-uu = zeros(N+1,N+1); uu[N:-1:2,N:-1:2] = reshape(u,N-1,N-1);
-xxx = yyy = -1:.0333:1;
-s = Spline2D(x[end:-1:1],y[end:-1:1],uu);
-uuu = evalgrid(s,xxx,yyy);
-figure(1); clf(); surf(xxx,yyy,uuu,rstride=1,cstride=1);
-xlabel("x"); ylabel("y"); zlabel("u"); view(-37.5,30);
-value = signif(uu[Int(N/2+1),Int(N/2+1)],10);
-text3D(.2,1,.022,"u(0,0) = $value");
-figure(2); clf(); contour(xxx,yyy,uuu,10); axis("square");
+u = L\vec(f)
+U = zeros(N+1,N+1)
+U[N:-1:2,N:-1:2] .= reshape(u,N-1,N-1)
+xx = yy = -1:.01:1
+UU = evalgrid(Spline2D(reverse(y),reverse(x),U),yy,xx)
+
+plt = plot(layout=(1,2))
+value = @sprintf("u(0,0) = %0.10e",U[Int(N/2+1),Int(N/2+1)])
+surface!(xx,yy,UU,subplot=1,color=:viridis,
+  xlabel="x",ylabel="y",zlabel="u",title=value )
+contour!(xx,yy,UU,levels=10,fill=true,subplot=2,clims=(-0.02,0.02),color=:balance,
+  aspect_ratio=1,xlabel="x",ylabel="y",zlabel="u(x,y)")

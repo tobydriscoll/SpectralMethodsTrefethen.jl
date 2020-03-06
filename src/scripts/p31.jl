@@ -1,16 +1,14 @@
 # p31.jl - gamma function via complex integral, trapezoid rule
 
-N = 70; theta = -pi + (2*pi/N)*(.5:N-.5);
-c = -11;                     # center of circle of integration
-r = 16;                      # radius of circle of integration
-x = -3.5:.1:4; y = -2.5:.1:2.5;
-zz = x' .+ 1im*y; gaminv = 0*zz;
+N = 70
+θ = -π .+ (2*π/N)*(.5:N-.5)
+c,r = -11,16                 # center,radius of circle of integration
+x,y = -3.5:.1:4,-2.5:.1:2.5
+gaminv = zeros(length(y),length(x))
 for i = 1:N
-    t = c + r*exp(1im*theta[i]);
-    gaminv += exp(t)*t.^(-zz)*(t-c);
+    t = c + r*exp(1im*θ[i])
+    global gaminv += [ exp(t)*t^(-x-1im*y)*(t-c) for y in y, x in x ]
 end
-gaminv = gaminv/N; gam = 1./gaminv;
-clf(); surf(x,y,abs.(gam));
-xlim(-3.5,4); ylim(-2.5,2.5); zlim(0,6);
-xlabel("Re(z)"); ylabel("Im(z)");
-text3D(4,-1.4,5.5,"\$|\\Gamma(z)|\$",fontsize=20);
+Γ = N./gaminv
+plt = wireframe(x,y,abs.(Γ),color=:darkblue,camera=(-30,30),
+  xaxis="Re(z)",yaxis="Im(z)",zaxis=(L"|\,\Gamma(z)\,|",(0,6)))

@@ -19,18 +19,20 @@ dt = 5/(Nx+Ny^2)
 Vold = [ exp(-8*((x+dt+1.5)^2+y^2)) for y in y, x in x ]
 
 # Time-stepping by leap frog formula:
-plotgap = round(Int,2/dt)
-dt = 2/plotgap
-plt = plot(layout=(3,1),camera=(-10,60),
-  xaxis=-3:3,yaxis=-1:1,zaxis=((-0.15,1),[]),clims=(-0.15,1) )
-for n = 0:2plotgap
+plotgap = round(Int,0.05/dt)
+dt = 0.05/plotgap
+xx,yy = (-60:60)/30,(-40:40)/40
+anim = @animate for n = 0:4/dt
     global V
     global Vold
     t = n*dt
-    if mod(n,plotgap)==0
-        surface!(x,y,V,color=:viridis,subplot=Int(n/plotgap+1),title="t = $(round(t))")
-    end
+    s = Spline2D(reverse(y),x,reverse(V,dims=1))
+    VV = evalgrid(s,yy,xx)
+    heatmap(xx,yy,VV,color=:balance,clims=(-1,1),
+            xaxis=-3:3,yaxis=-1:1,aspect_ratio=1,
+            title=@sprintf("t = %0.2f",t) )
     Vnew = 2*V - Vold + dt^2*(V*D2x +D2y*V)
     Vold,V = V,Vnew
     V[[1,Ny+1],:] = BC*V[2:Ny,:]       # Neumann BCs for |y|=1
-end
+end every plotgap
+plt = gif(anim,"p37anim.gif",fps=15)

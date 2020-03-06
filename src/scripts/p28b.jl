@@ -1,37 +1,47 @@
 # p28b.jl - eigenmodes of Laplacian on the disk
 
 # r coordinate, ranging from -1 to 1 (N must be odd)
-N = 25; N2 = Int((N-1)/2);
-(D,r) = cheb(N); D2 = D^2;
-D1 = D2[2:N2+1,2:N2+1]; D2 = D2[2:N2+1,N:-1:N2+2];
-E1 =  D[2:N2+1,2:N2+1]; E2 =  D[2:N2+1,N:-1:N2+2];
+N = 25
+N2 = Int((N-1)/2)
+D,r = cheb(N)
+D2 = D^2
+D1 = D2[2:N2+1,2:N2+1]
+D2 = D2[2:N2+1,N:-1:N2+2]
+E1 =  D[2:N2+1,2:N2+1]
+E2 =  D[2:N2+1,N:-1:N2+2]
 
 # t = theta coordinate, ranging from 0 to 2*pi (M must be even):
-M = 20; dt = 2*pi/M; t = dt*(1:M); M2 = Int(M/2);
-D2t = toeplitz([-pi^2/(3*dt^2)-1/6; @. .5*(-1)^(2:M)/sin(dt*(1:M-1)/2)^2]);
+M = 20
+dt = 2*pi/M
+t = dt*(1:M)
+M2 = Int(M/2)
+col = [ 0.5*(-1)^(k+1)/sin(k*dt/2)^2 for k in 1:M-1 ]
+D2t = toeplitz([-pi^2/(3*dt^2)-1/6;col])
 
 # Laplacian in polar coordinates:
-R = diagm(1./r[2:N2+1]);
-Z = zeros(M2,M2); I = eye(M2);
-L = kron(D1+R*E1,eye(M)) + kron(D2+R*E2,[Z I;I Z]) + kron(R^2,D2t);
+R = Diagonal(1 ./ r[2:N2+1])
+Z = zeros(M2,M2)
+L = kron(D1+R*E1,I(M)) + kron(D2+R*E2,[Z I(M2);I(M2) Z]) + kron(R^2,D2t)
 
 # Compute 25 eigenmodes:
-index = 1:25;
-(Lam,V) = eig(-L); ii = sortperm(abs.(Lam))[index];
-Lam = Lam[ii]; V = V[:,ii];
-Lam = sqrt.(real(Lam/Lam[1]));
+index = 1:25
+λ,V = eigen(-L,sortby=z->abs(z))
+λ,V = λ[index],V[:,index]
+λ = sqrt.(real(λ/λ[1]))
 
 # Plot nodal lines:
-(rr,tt) = (r[1:N2+1],[0;t]);
-(xx,yy) = @. (cos(tt)*rr',sin(tt)*rr');
-z = exp.(1im*pi*(-100:100)/100);  clf();
+rr = LinRange(r[N2+1],1,80)
+tt = (0:80)/80*2π
+XX = [ r*cos(θ) for θ in tt, r in rr ]
+YY = [ r*sin(θ) for θ in tt, r in rr ]
+plt = plot(size=(800,800),layout=(5,5),aspect_ratio=1,framestyle=:none)
 for i = 1:25
-    subplot(5,5,i);
-    u = reshape(real(V[:,i]),M,N2);
-    u = [zeros(M+1) u[[M;1:M],:]];
-    u = u/norm(u[:],Inf);
-    plot(real(z),imag(z));
-    xlim(-1.07,1.07); ylim(-1.07,1.07); axis("off"); axis("equal");
-    contour(xx,yy,u,levels=[0]);
-    title("$(signif(Lam[i],5))",fontsize=8);
+    str = @sprintf("%0.4f",λ[i])
+    plot!(cos.(tt),sin.(tt),l=(:black,1.5),subplot=i)
+    plot!(cos.(tt),sin.(tt),l=(:black,2),subplot=i,
+      title=str,titlefontsize=8,xlim=(-1.04,1.04),ylim=(-1.04,1.04))
+    U = reshape(real(V[:,i]),M,N2)
+    U = [ zeros(M+1) U[[M;1:M],:] ]
+    UU = evalgrid(Spline2D([0;t],r[N2+1:-1:1],reverse(U,dims=2)),tt,rr)
+    contour!(XX,YY,UU,levels=[0],color=:black,subplot=i)
 end

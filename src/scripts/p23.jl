@@ -2,27 +2,32 @@
 #         (compare p16.jl)
 
 # Set up tensor product Laplacian and compute 4 eigenmodes:
-N = 16; (D,x) = cheb(N); y = x;
-xx = x[2:N]; yy = y[2:N];
-D2 = D^2; D2 = D2[2:N,2:N]; I = eye(N-1);
-L = -kron(I,D2) - kron(D2,I);                #  Laplacian
-f = @. exp(20*(yy-xx'-1));      # perturbation
-L = L + diagm(f[:]);
-(D,V) = eig(L); ii = sortperm(D)[1:4];
-D = D[ii]; V = V[:,ii];
+N = 16
+D,x = cheb(N)
+y = x
+
+D2 = D^2
+D2 = D2[2:N,2:N]
+L = -kron(I(N-1),D2) - kron(D2,I(N-1))                    #  Laplacian
+f = [ exp(20*(y-x-1)) for y in y[2:N], x in x[2:N] ]      # perturbation
+L = L + Diagonal(vec(f))
+λ,V = eigen(L)
+λ,V = λ[1:4],V[:,1:4]
 
 # Reshape them to 2D grid, interpolate to finer grid, and plot:
-xx = yy = x[end:-1:1];
-xxx = yyy = -1:.02:1;
-uu = zeros(N+1,N+1);
-(ay,ax) = (repmat([.56 .04],2,1),repmat([.1,.5],1,2)); clf();
-for i = 1:4
-    uu[2:N,2:N] = reshape(V[:,i],N-1,N-1);
-    uu = uu/norm(uu[:],Inf);
-    s = Spline2D(xx,yy,reduce(flipdim,uu,1:2));
-    uuu = evalgrid(s,xxx,yyy);
-    axes([ax[i],ay[i],.38,.38]);
-    contour(xxx,yyy,uuu,levels=-.9:.2:.9);
-    axis("square");
-    title("eig = $(signif(D[i]/(pi^2/4),13)) π^2/4");
+xx = yy = -1:.02:1
+U = zeros(N+1,N+1)
+plt = plot(layout=(2,2))
+for i in 1:4
+    global U
+    U[2:N,2:N] = reshape(V[:,i],N-1,N-1)
+    s = Spline2D(reverse(y),reverse(x),reverse(reverse(U,dims=1),dims=2))
+    UU = evalgrid(s,yy,xx)
+    m,M = extrema(UU)
+    scl = abs(m) > M ? m : M
+    UU = UU/scl  
+    str = @sprintf("λ = %0.11f π^2/4",λ[i]/(π^2/4)) 
+    contour!(xx,yy,UU,fill=true,subplot=i,levels=-1.1:.2:1.1,
+      color=:balance,clims=(-1,1),
+      xlim=(-1,1),ylim=(-1,1),aspect_ratio=1,title=str)
 end

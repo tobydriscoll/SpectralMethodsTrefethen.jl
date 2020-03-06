@@ -2,23 +2,26 @@
 #        For complex v, delete "real" commands.
 
 # Differentiation of a hat function:
-N = 24; h = 2*pi/N; x = h*(1:N);
-v = @. max(0,1-abs(x-pi)/2); v_hat = fft(v);
-w_hat = 1im*[0:N/2-1;0;-N/2+1:-1] .* v_hat;
-w = real(ifft(w_hat)); clf();
-subplot(2,2,1);  plot(x,v,".-",markersize=6);
-axis([0,2pi,-.5,1.5]); grid(true); title("function");
-subplot(2,2,2), plot(x,D*v,".-",markersize=6);
-axis([0,2pi,-1,1]); grid(true); title("spectral derivative");
+N = 24
+h = 2π/N
+x = h*(1:N)
+v = @. max(0,1-abs(x-pi)/2)
+v̂ = fft(v)
+ŵ = 1im*[0:N/2-1;0;-N/2+1:-1] .* v̂
+w = real(ifft(ŵ))
+
+plt = plot(layout=(2,2),grid=true,xlim=(0,2π))
+plot!(x,v,m=4,subplot=1,ylim=(-0.5,1.5),title="function")
+plot!(x,D*v,m=4,subplot=2,ylim=(-1,1),title="spectral derivative")
 
 # Differentiation of exp(sin(x)):
-v = @. exp(sin(x)); vprime = @. cos(x)*v;
-v_hat = fft(v);
-w_hat = 1im*[0:N/2-1;0;-N/2+1:-1] .* v_hat;
-w = real(ifft(w_hat));
-subplot(2,2,3), plot(x,v,".-",markersize=6);
-axis([0,2pi,0,3]), grid(true);
-subplot(2,2,4), plot(x,D*v,".-",markersize=6);
-axis([0,2pi,-2,2]), grid(true);
-error = signif(norm(D*v-vprime,Inf),4);
-text(2.2,1.4,"max error = $error",fontsize=8);
+v = @. exp(sin(x))
+vprime = @. cos(x)*v
+v̂ = fft(v)
+ŵ = 1im*[0:N/2-1;0;-N/2+1:-1] .* v̂
+w = real(ifft(ŵ))
+
+plot!(x,v,m=4,subplot=3,ylim=(0,3))
+plot!(x,D*v,m=4,subplot=4,ylim=(-2,2))
+str = @sprintf("max error = %0.4e",norm(D*v-vprime,Inf))
+annotate!(2.2,1.4,text(str,8,:left),subplot=4)
