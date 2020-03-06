@@ -75,13 +75,7 @@ function gauss(N)
     return x,2*V[1,:].^2
 end
 
-
-"""
-    chebinterp(vals)
-
-Create an interpolant for values given at Chebyshev nodes
-"""
-function chebinterp(u,x,w)
+function baryinterp(u,x,w)
     n = length(u)
     t = zeros(n)
     hit = falses(n)
@@ -94,17 +88,22 @@ function chebinterp(u,x,w)
     end
 end 
 
-function chebinterp(u,x)
+function baryinterp(u,x)
     n = length(u)
     w = [ 1/prod(2(x[j]-x[k]) for k in 1:n if k !== j) for j in 1:n ]
-    chebinterp(u,x,w)
+    baryinterp(u,x,w)
 end
 
+"""
+    chebinterp(vals)
+
+Create an interpolant for values given at Chebyshev nodes
+"""
 function chebinterp(u)
     n = length(u)-1
     wc = [ 0.5; (-1).^(1:n-1); 0.5*(-1)^n ]
     xc = [ cos(k*π/n) for k in 0:n ]
-    chebinterp(u,xc,wc)
+    baryinterp(u,xc,wc)
 end
 
 function chebinterp_slow(u)
