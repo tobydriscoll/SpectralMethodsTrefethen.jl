@@ -10,8 +10,8 @@ for (sp,j) in enumerate(5:5:30)        # plot 6 eigenvectors
     u = [ 0; V[:,j]; 0 ]
     scatter!(x,u,m=4,subplot=sp)
     xx = -1:.01:1
-    uu = polyval(polyfit(x,u),xx)
+    uu = chebinterp(u).(xx)
     plot!(xx,uu,subplot=sp)
-    annotate!(-0.4,-0.25,text("eig $j = $(-lam[j]*4/pi^2) pi^2/4",7,:left,:top),subplot=sp)
+    annotate!(-0.4,-0.25,text("eig $j = $(-lam[j]*4/π^2) π^2/4",7,:left,:top),subplot=sp)
     annotate!(0.7,-0.25,text("$(round(4*N/(pi*j),sigdigits=2))  ppw",7,:left,:top),subplot=sp)
 end

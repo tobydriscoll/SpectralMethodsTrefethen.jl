@@ -11,7 +11,7 @@ for (k,N) in enumerate(12:12:48)
     v = [0;v;0]                      # extend to booundary
     v = v/v[Int(N/2+1)]*airyai(0)    # normalize
     xx = -1:.01:1
-    vv = polyval(polyfit(x,v),xx)
+    vv = chebinterp(v).(xx)
     plot!(xx,vv,subplot=k,
-      title=@sprintf("N = %d     λ = %0.11f",N,λ) )
+      title=@sprintf("N = %d,   λ = %0.10f",N,λ) )
 end  

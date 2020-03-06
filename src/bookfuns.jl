@@ -81,20 +81,31 @@ end
 
 Create an interpolant for values given at Chebyshev nodes
 """
-function chebinterp(u)
+function chebinterp(u,x,w)
     n = length(u)
-    wc = [ 0.5*(-1)^(n-1); (-1).^(n-2:-1:1); 0.5]
-    xc = [ sin(π*(2k-n-1)/(2n-2)) for k in 1:n ]
     t = zeros(n)
     hit = falses(n)
-    return function(x)
+    return function(s)
         for i in 1:n 
-            @inbounds t[i] = wc[i]/(x-xc[i])
+            @inbounds t[i] = w[i]/(s-x[i])
             @inbounds hit[i] = isinf(t[i])
         end
         any(hit) ? u[findfirst(hit)] : dot(t,u)/sum(t)
     end
 end 
+
+function chebinterp(u,x)
+    n = length(u)
+    w = [ 1/prod(2(x[j]-x[k]) for k in 1:n if k !== j) for j in 1:n ]
+    chebinterp(u,x,w)
+end
+
+function chebinterp(u)
+    n = length(u)-1
+    wc = [ 0.5; (-1).^(1:n-1); 0.5*(-1)^n ]
+    xc = [ cos(k*π/n) for k in 0:n ]
+    chebinterp(u,xc,wc)
+end
 
 function chebinterp_slow(u)
     n = length(u)

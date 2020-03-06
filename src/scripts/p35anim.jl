@@ -17,11 +17,11 @@ plotgap = round(Int,tplot/dt)
 dt = tplot/plotgap
 ntime = round(Int,tmax/dt)
 xx = -1:.025:1
-vv = polyval(polyfit(x,v),xx);
+vv = chebinterp(v).(xx);
 anim = @animate for i = 0:ntime
     global v
     str = @sprintf("t = %0.3f",i*dt)
-    plot(xx,polyval(polyfit(x,v),xx),xlim=(-1,1),ylim=(-1,2),title=str)
+    plot(xx,chebinterp(v).(xx),xlim=(-1,1),ylim=(-1,2),title=str)
     v += dt*(ϵ*D2*(v-x) + v - v.^3)           # Euler
     v[1],v[end] = 1 + sin(i*dt/5)^2, -1       # BC
 end every plotgap

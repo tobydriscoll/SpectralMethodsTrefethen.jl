@@ -17,14 +17,14 @@ plotgap = round(Int,tplot/dt)
 dt = tplot/plotgap
 ntime = round(Int,tmax/dt)
 xx = -1:.025:1
-vv = polyval(polyfit(x,v),xx);
+vv = chebinterp(v).(xx);
 data = [vv zeros(length(vv),ntime)]
 t = [ n*dt for n in 0:ntime ]
 for i = 1:ntime
     global v
     v += dt*(ϵ*D2*(v-x) + v - v.^3)         # Euler
     v[1],v[end] = 1 + sin(t[i]/5)^2, -1        # BC
-    data[:,i+1] = polyval(polyfit(x,v),xx)
+    data[:,i+1] = chebinterp(v).(xx)
 end
 plt = surface(xx,t[1:plotgap:end],data[:,1:plotgap:end]',cam=(30,50),color=:balance,
     xaxis="x",yaxis="t",zaxis=("u(x,t)",(-1.05,2.05)) )

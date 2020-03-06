@@ -19,5 +19,5 @@ end
 u = [0;u;0]
 plt = scatter(x,u,grid=true)
 xx = -1:.01:1
-uu = polyval(polyfit(x,u),xx)
-plot!(xx,uu,title="no. steps = $it,    u(0) =$(u[Int(N/2+1)])")
+uu = chebinterp(u).(xx)
+plot!(xx,uu,title="no. steps = $it,  u(0) = $(u[Int(N/2+1)])")

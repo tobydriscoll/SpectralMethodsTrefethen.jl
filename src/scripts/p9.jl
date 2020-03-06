@@ -8,8 +8,8 @@ for i = 1:2
     i==2 && ( (s,x) = ("Chebyshev points", [cos(n*π/N) for n in 0:N]) )
     u = @. 1/(1+16*x^2)
     uu = @. 1/(1+16*xx^2)
-    p = polyfit(x,u)              # interpolation
-    pp = p(xx)                    # evaluation of interpolant
+    p = chebinterp(u,x)             # interpolation
+    pp = p.(xx)                     # evaluation of interpolant
     scatter!(x,u,m=4,subplot=i)
     plot!(xx,pp,subplot=i,xlim=(-1.1,1.1),ylim=(-1,1.5),title=s)
     error = round(norm(uu-pp,Inf),sigdigits=5)
