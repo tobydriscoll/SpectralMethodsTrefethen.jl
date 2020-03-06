@@ -3,24 +3,16 @@ module SpectralMethodsTrefethen
 using MATLAB
 using LinearAlgebra, SparseArrays, Dierckx, Polynomials, LaTeXStrings, SpecialFunctions, FFTW
 using Plots, Printf
-#import Contour
 
 # Analogs for named functions in the book.
-export cheb, chebfft, clencurt, gauss
-
-# # Required by the scripts, so must be in parent scope
-# eval(parentmodule(@__MODULE__),:(using PyPlot, Dierckx, Polynomials, LaTeXStrings, SpecialFunctions))
-
-## Analogs of functions from the book.
+export cheb, chebfft, clencurt, gauss, chebinterp
 include("bookfuns.jl")
 
-## Stand-ins for native functions in MATLAB.
+# Stand-ins for native functions in MATLAB.
 include("stand_ins.jl")
 
-# Indicate that MATLAB has not yet been looked for.
-is_matlab_running = nothing
-
 # See if MATLAB is available/working and can find the original files.
+is_matlab_running = nothing
 function look_for_matlab()
     try
         @info "Checking for MATLAB..."
@@ -30,10 +22,10 @@ function look_for_matlab()
         # At some point MATLAB started warning for 2D 'cubic' interp.
         eval_string("warning off MATLAB:griddedInterpolant:CubicUniformOnlyWarnId");
         @info "...success."
-        true
+        global is_matlab_running = true
     catch
         @warn "MATLAB is not available. Continuing without MATLAB."
-        false
+        global is_matlab_running = false
     end
 end
 
@@ -49,44 +41,37 @@ for (root, dirs, files) in walkdir(joinpath(@__DIR__,"scripts"))
         basename = file[1:end-3];
         fundef = quote
             function $(Symbol(basename))(;julia=true,matlab=false,source=false)
-                println(join(["Running script ",$basename,"..."]))
-                t = []
                 if julia
                     # Packages are needed in Main scope for include()
-                    @info "Julia version..."
-                    close("all")
-                    pyplot()
-                    default(legend=false,titlefontsize=10,xguidefontsize=8,xtickfontsize=7,yguidefontsize=8,ytickfontsize=7,zguidefontsize=8,ztickfontsize=6,grid=true)
-                    tt = @timed include(joinpath($root,$file))
-                    #println(" finished in $(tt[2]) seconds")
-                    push!(t,tt[2])
-                end
-                if matlab
-                    if isnothing(is_matlab_running)
-                        is_matlab_running = SpectralMethodsTrefethen.look_for_matlab()
-                    end
-                    if !is_matlab_running
-                        @warn "MATLAB cannot be run."
-                        return t
-                    end
-                    @info "MATLAB version..."
-                    eval_string("close all")
-                    eval_string("pwd")
-                    tt = @timed eval_string($basename)
-                    #println(" finished in $(tt[2]) seconds")
-                    push!(t,tt[2])
-                end
-                if source
-                    if julia 
+                    #@info join(["Running julia version of ",$basename,"..."])
+                    if source 
                         for line in eachline(joinpath($root,$file))
                             println(line)
                         end
+                        println("")
                     end
-                    if matlab 
-                        for line in eachline(joinpath($root,"..","matlab",$basename * ".m"))
-                            println(line)
+                    close("all")
+                    pyplot()
+                    default(legend=false,titlefontsize=10,xguidefontsize=8,xtickfontsize=7,yguidefontsize=8,ytickfontsize=7,zguidefontsize=8,ztickfontsize=6,grid=true)
+                    include(joinpath($root,$file))
+                end
+                if matlab
+                    if isnothing(SpectralMethodsTrefethen.is_matlab_running)
+                        SpectralMethodsTrefethen.look_for_matlab()
+                    end
+                    if !SpectralMethodsTrefethen.is_matlab_running
+                        @warn "MATLAB cannot be run."
+                    else
+                        #@info join(["Running MATLAB version of ",$basename,"..."])
+                        if source 
+                            for line in eachline(joinpath($root,"..","..","mfiles",$basename * ".m"))
+                                println(line)
+                            end
+                            println("")
                         end
-                    end
+                        eval_string("close all")
+                        eval_string($basename);
+                     end
                 end
                 return plt
             end
