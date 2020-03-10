@@ -1,5 +1,6 @@
-# p35.m - Allen-Cahn eq. as in p34.m, but with boundary condition
-#         imposed explicitly ("method (II)")
+# p35anim.jl - Allen-Cahn eq. as in p34, but with boundary condition
+#              imposed explicitly ("method (II)")
+#              w/animated solution
 
 # Differentiation matrix and initial data:
 N = 20

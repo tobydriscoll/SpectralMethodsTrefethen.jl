@@ -1,4 +1,4 @@
-# p40.jl - eigenvalues of Orr-Sommerfeld operator (compare p38.jl)
+# p40.jl - eigenvalues of Orr-Sommerfeld operator (compare p38)
 
 R = 5772
 plt = plot(layout=(2,2),aspect_ratio=1,xlim=(-0.8,0.2),ylim=(-1,0))

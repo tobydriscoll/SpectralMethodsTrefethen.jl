@@ -1,4 +1,4 @@
-# p26.m - eigenvalues of 2nd-order Chebyshev diff. matrix
+# p26.jl - eigenvalues of 2nd-order Chebyshev diff. matrix
 
 N = 60
 D,x = cheb(N)

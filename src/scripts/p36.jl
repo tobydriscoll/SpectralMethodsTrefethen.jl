@@ -1,4 +1,4 @@
-# p36.m - Laplace eq. on [-1,1]x[-1,1] with nonzero BCs
+# p36.jl - Laplace eq. on [-1,1]x[-1,1] with nonzero BCs
 
 # Set up grid and 2D Laplacian, boundary points included:
 N = 24
@@ -19,8 +19,9 @@ rhs[b] = [ (y==1)*(x<0)*sin(π*x)^4 + 0.2*(x==1)*sin(3π*y) for y in y, x in x i
 u = L\rhs
 U = reshape(u,N+1,N+1)
 xx = yy = -1:.04:1;
-s = Spline2D(reverse(x),reverse(y),reverse(reverse(U,dims=2),dims=1))
-plt = surface(xx,yy,evalgrid(s,xx,yy),color=:viridis,
+UU = hcat([ chebinterp(U[:,j]).(yy) for j in 1:N+1 ]...)
+UU = vcat([ chebinterp(UU[i,:]).(xx)' for i in 1:length(yy) ]...)
+plt = surface(xx,yy,UU,color=:viridis,
   xaxis="x",yaxis="y",zaxis=("u(x,y)"),cam=(-20,45))
 umid = U[Int(N/2)+1,Int(N/2)+1]
 title!( @sprintf("u(0,0) = %0.9f",umid) )

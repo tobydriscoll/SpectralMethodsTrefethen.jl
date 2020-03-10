@@ -1,5 +1,5 @@
-# p35.m - Allen-Cahn eq. as in p34.m, but with boundary condition
-#         imposed explicitly ("method (II)")
+# p35.jl - Allen-Cahn eq. as in p34, but with boundary condition
+#          imposed explicitly ("method (II)")
 
 # Differentiation matrix and initial data:
 N = 20
@@ -27,4 +27,4 @@ for i = 1:ntime
     data[:,i+1] = chebinterp(v).(xx)
 end
 plt = surface(xx,t[1:plotgap:end],data[:,1:plotgap:end]',cam=(30,50),color=:balance,
-    xaxis="x",yaxis="t",zaxis=("u(x,t)",(-1.05,2.05)) )
+    clims=(-2,2),xaxis="x",yaxis="t",zaxis=("u(x,t)",(-1.05,2.05)) )

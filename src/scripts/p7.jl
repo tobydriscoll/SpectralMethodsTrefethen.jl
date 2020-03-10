@@ -1,4 +1,4 @@
-# p7.m - accuracy of periodic spectral differentiation
+# p7.jl - accuracy of periodic spectral differentiation
 
 # Compute derivatives for various values of N:
 Nmax = 50

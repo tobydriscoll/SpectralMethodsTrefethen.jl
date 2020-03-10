@@ -37,4 +37,4 @@ for n = 1:nmax
     end
 end
 plt = surface(x,tdata,udata',camera=(-20,55),
-  xaxis=((-π,π),"x"),yaxis=("y"),zaxis=((0,3000),[0,0,2000]) )
+  xaxis=((-π,π),"x"),yaxis=("y"),zaxis=((0,2200),[0,0,2000]) )

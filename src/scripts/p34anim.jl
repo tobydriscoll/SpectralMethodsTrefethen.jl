@@ -1,5 +1,6 @@
-# p35.m - Allen-Cahn eq. as in p34.m, but with boundary condition
-#         imposed explicitly ("method (II)")
+# p34.jl - Allen-Cahn eq. u_t = eps*u_xx+u-u^3, u(-1)=-1, u(1)=1
+#          (compare p6.jl and p32.jl)
+#          w/animated solution
 
 # Differentiation matrix and initial data:
 N = 20

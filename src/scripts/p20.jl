@@ -1,4 +1,4 @@
-# p20.m - 2nd-order wave eq. in 2D via FFT (compare p19.m)
+# p20.jl - 2nd-order wave eq. in 2D via FFT (compare p19)
 
 # Grid and initial data:
 N = 24
@@ -21,8 +21,8 @@ for n in 0:3plotgap
     if mod(n,plotgap)==0     # plots at multiples of t=1/3
         i = Int(n/plotgap+1)
         xx = yy = -1:1/16:1;
-        s = Spline2D(xr,yr,reverse(reverse(V,dims=1),dims=2))
-        VV = evalgrid(s,xx,yy)
+        VV = hcat([ chebinterp(V[:,j]).(yy) for j in 1:N+1 ]...)
+        VV = vcat([ chebinterp(VV[i,:]).(xx)' for i in 1:length(yy) ]...)
         str = @sprintf("t = %0.4f",t)
         surface!(xx,yy,VV,subplot=i,clims=(-0.2,1.0),color=:viridis,cam=(-37.5,30),
           xlim=(-1,1),ylim=(-1,1),zlim=(-0.15,1),title=str)

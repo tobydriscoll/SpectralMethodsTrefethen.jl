@@ -1,4 +1,4 @@
-# p20.m - 2nd-order wave eq. in 2D via FFT (compare p19.m)
+# p20jl - 2nd-order wave eq. in 2D via FFT, w/animation
 
 # Grid and initial data:
 N = 24
@@ -21,10 +21,10 @@ anim = @animate for n in 0:Int(Tf/dt)
     global V
     global Vold
 
-    s = Spline2D(xr,yr,reverse(reverse(V,dims=1),dims=2))
-    VV = evalgrid(s,xx,yy)
+    VV = hcat([ chebinterp(V[:,j]).(yy) for j in 1:N+1 ]...)
+    VV = vcat([ chebinterp(VV[i,:]).(xx)' for i in 1:length(yy) ]...)
     str = @sprintf("t = %0.4f",n*dt) 
-    heatmap(xx,yy,VV,clims=(-0.2,1.0),color=:viridis,aspect_ratio=1,
+    heatmap(xx,yy,VV,clims=(-0.8,0.8),color=:balance,aspect_ratio=1,
          xlim=(-1,1),ylim=(-1,1),title=str)
 
     for i in 2:N                # 2nd derivs wrt x in each row

@@ -15,12 +15,13 @@ spy!(sparse(L),subplot=1,title="Nonzeros in the Laplacian")
 
 # Reshape long 1D results onto 2D grid (reversing to usual direction):
 U = zeros(N+1,N+1)
-U[N:-1:2,N:-1:2] .= reshape(u,N-1,N-1)
+U[2:N,2:N] = reshape(u,N-1,N-1)
 value = U[Int(3N/4+1),Int(3N/4+1)]
 
 # Interpolate to finer grid and plot:
 xx = yy = -1:.01:1
-UU = evalgrid(Spline2D(reverse(y),reverse(x),U),yy,xx)
+UU = hcat([ chebinterp(U[:,j]).(yy) for j in 1:N+1 ]...)
+UU = vcat([ chebinterp(UU[i,:]).(xx)' for i in 1:length(yy) ]...)
 str = latexstring("u(2^{-1/2},2^{-1/2}) = "*@sprintf("%0.11f",value))
 surface!(xx,yy,UU,subplot=2,color=:balance,clims=(-.5,.5),
   xlabel="x",ylabel="y",zlabel="u(x,y)",title=str)

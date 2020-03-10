@@ -21,7 +21,7 @@ Vold = [ exp(-8*((x+dt+1.5)^2+y^2)) for y in y, x in x ]
 # Time-stepping by leap frog formula:
 plotgap = round(Int,0.05/dt)
 dt = 0.05/plotgap
-xx,yy = (-60:60)/30,(-40:40)/40
+xx,yy = (-30A:30A)/30,(-40:40)/40
 anim = @animate for n = 0:4/dt
     global V
     global Vold

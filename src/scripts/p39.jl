@@ -1,5 +1,5 @@
-# p39.m - eigenmodes of biharmonic on a square with cλped BCs
-#         (compare p38.m)
+# p39.jl - eigenmodes of biharmonic on a square with clamped BCs
+#          (compare p38)
 
 # Construct spectral approximation to biharmonic operator:
 N = 17
@@ -22,8 +22,8 @@ plt = plot(size=(800,800),layout=(5,5),aspect_ratio=1,framestyle=:none)
 for i = 1:25
     U = zeros(N+1,N+1)
     U[2:N,2:N] = reshape(V[:,i],N-1,N-1)
-    s = Spline2D(reverse(y),reverse(x),reverse(reverse(U,dims=1),dims=2))
-    UU = evalgrid(s,yy,xx)
+    UU = hcat([ chebinterp(U[:,j]).(yy) for j in 1:N+1 ]...)
+    UU = vcat([ chebinterp(UU[i,:]).(xx)' for i in 1:length(yy) ]...)
     contour!(xx,yy,UU,levels=[0],subplot=i,color=:black,
         title=(@sprintf("%.6g",λ[i])),titlefontsize=8 )
     plot!(real(sq),imag(sq),subplot=i)

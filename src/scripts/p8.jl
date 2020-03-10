@@ -1,4 +1,4 @@
-# p8.m - eigenvalues of harmonic oscillator -u"+x^2 u on R
+# p8.jl - eigenvalues of harmonic oscillator -u"+x^2 u on R
 
 L = 8                             # domain is [-L L], periodic
 for N in 6:6:36
