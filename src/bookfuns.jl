@@ -1,7 +1,20 @@
 ## Analogs of functions from the book.
+
+# toeplitz() is not built into Julia.
+"""
+    toeplitz(col[,row])
+Construct Toeplitz matrix from first column and first row. If the row is not
+given, the result is symmetric.
+"""
+function toeplitz(col,row=col)
+    m,n = length(col),length(row);
+    col[1]==row[1] || warn("Column wins conflict on the diagonal.");
+    x = [ row[end:-1:2]; col ];
+    return [ x[i-j+n] for i=1:m, j=1:n ]
+end
+
 """
     cheb(N)
-
 Chebyshev differentiation matrix and grid.
 """
 function cheb(N)
@@ -14,10 +27,8 @@ function cheb(N)
     return D,x
 end
 
-
 """
     chebfft(v)
-
 Differentiate values given at Chebyshev points via the FFT.
 """
 function chebfft(v)
@@ -38,8 +49,7 @@ end
 
 """
     clencurt(N)
-
-Nodes and weights for Clenshaw-Curtis quadrature
+Nodes and weights for Clenshaw-Curtis quadrature.
 """
 function clencurt(N)
     θ = [ pi*i/N for i=0:N ]
@@ -65,8 +75,7 @@ end
 
 """
     gauss(N)
-
-Nodes and weights for Gauss quadrature
+Nodes and weights for Gauss quadrature.
 """
 function gauss(N)
     β = [ .5/sqrt(1-1/(2*i)^2) for i = 1:N-1 ]
@@ -74,45 +83,3 @@ function gauss(N)
     x,V = eigen(T)
     return x,2*V[1,:].^2
 end
-
-function baryinterp(u,x,w)
-    n = length(u)
-    t = zeros(n)
-    hit = falses(n)
-    return function(s)
-        for i in 1:n 
-            @inbounds t[i] = w[i]/(s-x[i])
-            @inbounds hit[i] = isinf(t[i])
-        end
-        any(hit) ? u[findfirst(hit)] : dot(t,u)/sum(t)
-    end
-end 
-
-function baryinterp(u,x)
-    n = length(u)
-    w = [ 1/prod(2(x[j]-x[k]) for k in 1:n if k !== j) for j in 1:n ]
-    baryinterp(u,x,w)
-end
-
-"""
-    chebinterp(vals)
-
-Create an interpolant for values given at Chebyshev nodes
-"""
-function chebinterp(u)
-    n = length(u)-1
-    wc = [ 0.5; (-1).^(1:n-1); 0.5*(-1)^n ]
-    xc = [ cos(k*π/n) for k in 0:n ]
-    baryinterp(u,xc,wc)
-end
-
-function chebinterp_slow(u)
-    n = length(u)
-    wc = k -> 1 < k < n ? (-1)^(n-k) : (-1)^(n-k)/2
-    xc = k -> sin(π*(2k-n-1)/(2n-2))
-    return function(x)
-        t = [ wc(i)/(x-xc(i)) for i in 1:n ]
-        hit = isinf.(t)
-        any(hit) ? u[findfirst(hit)] : dot(t,u)/sum(t)
-    end
-end 

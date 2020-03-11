@@ -1,5 +1,7 @@
 # p29.jl - solve Poisson equation on the unit disk
 #         (compare p16 and p28)
+#         with spectral interpolation
+
 
 # Laplacian in polar coordinates:
 N,M = 25,20
@@ -26,6 +28,12 @@ u = L\vec(f)
 
 # Reshape results onto 2D grid and plot them:
 U = reshape(u,M,N2)
-X = [ r*cos(θ) for θ in t, r in r[1:N2+1] ]
-Y = [ r*sin(θ) for θ in t, r in r[1:N2+1] ]
-plt = surface(X,Y,[zeros(M) U],color=:viridis,cam=(20,40),xaxis="x",yaxis="y",zaxis="u(x,y)")
+rr = LinRange(0,1,80)
+tt = [ 2π*m/80 for m in 0:80 ]
+U = [zeros(M) U reverse(reverse(U,dims=1),dims=2) zeros(M) ]
+UU = vcat([ chebinterp(U[i,:]).(rr)' for i in 1:M ]...)
+UU = hcat([ fourinterp(UU[:,j]).(tt) for j in 1:length(rr) ]...)
+
+XX = [ r*cos(θ) for θ in tt, r in rr ]
+YY = [ r*sin(θ) for θ in tt, r in rr ]
+plt = surface(XX,YY,UU,color=:viridis,cam=(20,40),xaxis="x",yaxis="y",zaxis="u(x,y)")

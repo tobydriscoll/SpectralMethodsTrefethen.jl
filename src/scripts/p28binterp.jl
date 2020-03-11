@@ -1,4 +1,5 @@
 # p28b.jl - eigenmodes of Laplacian on the disk
+#           with spectral interpolation
 
 # r coordinate, ranging from -1 to 1 (N must be odd)
 N = 25
@@ -30,8 +31,10 @@ index = 1:25
 λ = sqrt.(real(λ/λ[1]))
 
 # Plot nodal lines:
-X = [ r*cos(θ) for θ in [0;t], r in r[1:N2+1] ]
-Y = [ r*sin(θ) for θ in [0;t], r in r[1:N2+1] ]
+rr = LinRange(0,1,80)
+tt = (0:80)/80*2π
+XX = [ r*cos(θ) for θ in tt, r in rr ]
+YY = [ r*sin(θ) for θ in tt, r in rr ]
 plt = plot(size=(800,800),layout=(5,5),aspect_ratio=1,framestyle=:none)
 for i = 1:25
     str = @sprintf("%0.4f",λ[i])
@@ -39,6 +42,8 @@ for i = 1:25
     plot!(cos.(tt),sin.(tt),l=(:black,2),subplot=i,
       title=str,titlefontsize=8,xlim=(-1.04,1.04),ylim=(-1.04,1.04))
     U = reshape(real(V[:,i]),M,N2)
-    U = [ zeros(M+1) U[[M;1:M],:] ]
-   contour!(X,Y,U,levels=[0],color=:black,subplot=i)
+    U = [zeros(M) U reverse(reverse(U,dims=1),dims=2) zeros(M) ]
+    UU = vcat([ chebinterp(U[i,:]).(rr)' for i in 1:M ]...)
+    UU = hcat([ fourinterp(UU[:,j]).(tt) for j in 1:length(rr) ]...)
+    contour!(XX,YY,UU,levels=[0],color=:black,subplot=i)
 end

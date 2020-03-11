@@ -26,8 +26,10 @@ anim = @animate for n = 0:4/dt
     global V
     global Vold
     t = n*dt
-    s = Spline2D(reverse(y),x,reverse(V,dims=1))
-    VV = evalgrid(s,yy,xx)
+    #s = Spline2D(reverse(y),x,reverse(V,dims=1))
+    #VV = evalgrid(s,yy,xx)
+    VV = hcat([ chebinterp(V[:,j]).(yy) for j in 1:Nx ]...)
+    VV = vcat([ fourinterp(VV[i,:]).(π*(xx/A.+1))' for i in 1:length(yy) ]...)
     heatmap(xx,yy,VV,color=:balance,clims=(-1,1),
             xaxis=-3:3,yaxis=-1:1,aspect_ratio=1,
             title=@sprintf("t = %0.2f",t) )

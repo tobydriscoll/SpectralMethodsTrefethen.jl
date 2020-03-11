@@ -10,12 +10,12 @@ v = @. exp(-100*(x-1).^2)
 vold = @. exp(-100*(x-0.2dt-1)^2)
 
 # Time-stepping by leap frog formula:
-tmax = 8;
+tmax = 8
 tplot = 0.15
 plotgap = round(Int,tplot/dt)
 dt = tplot/plotgap
 ntime = round(Int,tmax/dt)
-data = hcat(v,zeros(N,ntime))
+data = [ v zeros(N,ntime) ]
 for i = 1:ntime
     global v
     global data
@@ -33,4 +33,4 @@ for i = 1:ntime
 end
 t = [ n*dt for n in 1:size(data,2) ]
 plt = surface(x,t,data',camera=(10,70),clims=(-3,3),
-    xaxis=("x",(0,2π)),yaxis=("t",(0,tmax)),zaxis=("u(x,t)",(-3,3)))
+    xaxis=("x",(0,2π)),yaxis=("t",(0,4)),zaxis=("u(x,t)",(-3,3)))
