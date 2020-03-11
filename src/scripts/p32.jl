@@ -10,7 +10,7 @@ u = [0;u;0] + (x.+1)/2
 plt = plot()
 scatter!(x,u)
 xx = -1:.01:1
-uu = polyval(polyfit(x,u),xx)
+uu = chebinterp(x,u).(xx)
 plot!(xx,uu)
 exact = @. (exp(4*xx) - sinh(4)*xx - cosh(4))/16 + (xx+1)/2
 title!( @sprintf("max err = %0.4e",norm(uu-exact,Inf)) )

@@ -11,7 +11,7 @@ u = [0;u]
 plt = plot()
 scatter!(x,u)
 xx = -1:.01:1
-uu = polyval(polyfit(x,u),xx)
+uu = chebinterp(u).(xx)
 plot!(xx,uu)
 exact = @. (exp(4*xx) - 4*exp(-4)*(xx-1) - exp(4))/16
 title!( @sprintf("max err = %0.4e",norm(uu-exact,Inf)) )

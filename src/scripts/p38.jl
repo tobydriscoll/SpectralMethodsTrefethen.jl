@@ -1,5 +1,5 @@
 # p38.jl - solve u_xxxx = exp(x), u(-1)=u(1)=u'(-1)=u'(1)=0
-#         (compare p13.jl)
+#         (compare p13)
 
 # Construct discrete biharmonic operator:
 N = 15
@@ -16,7 +16,7 @@ u = [0;u;0]
 plt = scatter(x,u)
 #axis([-1,1,-.01,.06]); grid(true);
 xx = -1:.01:1
-uu = (1 .- xx.^2).*polyval(polyfit(x,S*u),xx);
+uu = (1 .- xx.^2).*chebinterp(S*u).(xx)
 plot!(xx,uu)
 
 # Determine exact solution and print maximum error:

@@ -4,6 +4,20 @@ using MATLAB
 using LinearAlgebra, SparseArrays, Polynomials, LaTeXStrings, SpecialFunctions, FFTW
 using Plots, Printf
 
+# This function is not native to Julia.
+export toeplitz
+"""
+    toeplitz(col[,row])
+
+Construct Toeplitz matrix from its first column and first row. If the row is not given, the result is symmetric.
+"""
+function toeplitz(col,row=col)
+    m,n = length(col),length(row)
+    col[1]==row[1] || @warn "Column wins conflict on the diagonal."
+    x = [ row[end:-1:2]; col ]
+    return [ x[i-j+n] for i=1:m, j=1:n ]
+end
+
 # Analogs for named functions in the book.
 export cheb, chebfft, clencurt, gauss
 include("bookfuns.jl")
@@ -50,7 +64,6 @@ for (root, dirs, files) in walkdir(joinpath(@__DIR__,"scripts"))
                         end
                         println("")
                     end
-                    close("all")
                     pyplot()
                     default(legend=false, titlefontsize=10, xguidefontsize=8, xtickfontsize=7, yguidefontsize=8, ytickfontsize=7, zguidefontsize=8, ztickfontsize=6, grid=true)
                     include(joinpath($root,$file))
