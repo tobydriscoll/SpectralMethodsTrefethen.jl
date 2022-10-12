@@ -1187,6 +1187,7 @@ function p30b()
     Nmax = 50
     # Computation: various values of N, four functions:
     clf()
+    E = zeros(4,Nmax)
     for N = 1:Nmax
         (x, w) = clencurt(N)
         f = @. abs(x)^3
@@ -1218,6 +1219,7 @@ function p30c()
     Nmax = 50
     # Computation: various values of N, four functions:
     clf()
+    E = zeros(4,Nmax)
     for N = 1:Nmax
         (x, w) = gauss(N)
         f = @. abs(x)^3
