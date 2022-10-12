@@ -168,11 +168,8 @@ function p6()
     data = [v zeros(N, nplots)]
     tdata = [t]
     for i = 1:nplots
-        global data, tdata
         for n = 1:plotgap
-            global t = t + dt
-            global v
-            global vold
+            t = t + dt
             v_hat = fft(v)
             w_hat = 1im * [0:N/2-1; 0; -N/2+1:-1] .* v_hat
             w = real(ifft(w_hat))
@@ -240,7 +237,7 @@ function p6u()
     xlabel("x")
     ylabel("t")
     zlabel("u")
-    gca()[:view_init](70, 10 - 90)
+    view(10, 70)
 end
 
 # p7 - accuracy of periodic spectral differentiation
@@ -1138,7 +1135,7 @@ function p29()
     (xx, yy) = @. (cos(tt) * rr', sin(tt) * rr')
     clf()
     surf(xx, yy, u)
-    gca()[:view_init](40, -70)
+    view(20, 40)
     xlim(-1, 1)
     ylim(-1, 1)
     zlim(-0.01, 0.05)
@@ -1347,7 +1344,7 @@ function p34()
     xlim(-1, 1)
     ylim(0, tmax)
     zlim(-1, 1)
-    gca()[:view_init](55, -150)
+    view(-60, 55)
     xlabel("x")
     ylabel("t")
     zlabel("u")
@@ -1391,7 +1388,7 @@ function p35()
     xlim(-1, 1)
     ylim(0, tmax)
     zlim(-1, 2)
-    gca()[:view_init](55, -150)
+    view(-60, 55)
     xlabel("x")
     ylabel("t")
     zlabel("u")
@@ -1425,7 +1422,7 @@ function p36()
     xlim(-1, 1)
     ylim(-1, 1)
     zlim(-0.2, 1)
-    gca()[:view_init](45, -110)
+    view(-20, 45)
     umid = uu[Int(N / 2)+1, Int(N / 2)+1]
     text3D(0, 0.8, 0.4, "u(0,0) = $(round(umid,sigdigits=9))")
 end
@@ -1460,7 +1457,7 @@ function p37()
             figure(n / plotgap + 1)
             clf()
             surf(x, y, vv)
-            gca()[:view_init](60, -100)
+            view(-10, 60)
             xlim(-A, A)
             ylim(-1, 1)
             zlim(-0.15, 1)
