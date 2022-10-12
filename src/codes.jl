@@ -1147,17 +1147,13 @@ function p29()
     zlabel("z")
 end
 
-# p30 - spectral integration, ODE style (compare p12.jl)
-function p30()
+function _p30(method)
     Nmax = 50
     # Computation: various values of N, four functions:
     clf()
+    E = zeros(4,Nmax)
     for N = 1:Nmax
-        i = 1:N
-        (D, x) = cheb(N)
-        x = x[i]
-        Di = inv(D[i, i])
-        w = Di[1, :]
+        x,w = method(N)
         f = @. abs(x)^3
         E[1, N] = abs(dot(w, f) - 0.5)
         f = @. exp(-x^(-2))
@@ -1167,7 +1163,7 @@ function p30()
         f = x .^ 10
         E[4, N] = abs(dot(w, f) - 2 / 11)
     end
-
+    
     # Plot results:
     labels = [L"|x|^3", L"\exp(-x^2)", L"1/(1+x^2)", L"x^{10}"]
     for iplot = 1:4
@@ -1180,71 +1176,27 @@ function p30()
         ylabel("error")
         text(32, 0.004, labels[iplot])
     end
+end
+
+# p30 - spectral integration, ODE style (compare p12.jl)
+function p30()
+    _p30(
+        function(N)
+            i = 1:N
+            D, x = cheb(N)
+            x = x[i]
+            Di = inv(D[i, i])
+            w = Di[1, :]
+            return x, w
+        end
+        )
 end
 
 # p30b - spectral integration, Clenshaw-Curtis style (compare p30.jl)
-function p30b()
-    Nmax = 50
-    # Computation: various values of N, four functions:
-    clf()
-    E = zeros(4,Nmax)
-    for N = 1:Nmax
-        (x, w) = clencurt(N)
-        f = @. abs(x)^3
-        E[1, N] = abs(dot(w, f) - 0.5)
-        f = @. exp(-x^(-2))
-        E[2, N] = abs(dot(w, f) - 2 * (exp(-1) + sqrt(pi) * (erf(1) - 1)))
-        f = @. 1 / (1 + x^2)
-        E[3, N] = abs(dot(w, f) - pi / 2)
-        f = x .^ 10
-        E[4, N] = abs(dot(w, f) - 2 / 11)
-    end
-
-    # Plot results:
-    labels = [L"|x|^3", L"\exp(-x^2)", L"1/(1+x^2)", L"x^{10}"]
-    for iplot = 1:4
-        subplot(2, 2, iplot)
-        semilogy(E[iplot, :] .+ 1e-100, ".-", markersize=10)
-        axis([0, Nmax, 1e-18, 1e3])
-        grid(true)
-        xticks(0:10:Nmax)
-        yticks((10.0) .^ (-15:5:0))
-        ylabel("error")
-        text(32, 0.004, labels[iplot])
-    end
-end
+p30b() = _p30(clencurt)
 
 # p30c - spectral integration, Gauss style (compare p30.jl)
-function p30c()
-    Nmax = 50
-    # Computation: various values of N, four functions:
-    clf()
-    E = zeros(4,Nmax)
-    for N = 1:Nmax
-        (x, w) = gauss(N)
-        f = @. abs(x)^3
-        E[1, N] = abs(dot(w, f) - 0.5)
-        f = @. exp(-x^(-2))
-        E[2, N] = abs(dot(w, f) - 2 * (exp(-1) + sqrt(pi) * (erf(1) - 1)))
-        f = @. 1 / (1 + x^2)
-        E[3, N] = abs(dot(w, f) - pi / 2)
-        f = x .^ 10
-        E[4, N] = abs(dot(w, f) - 2 / 11)
-    end
-
-    # Plot results:
-    labels = [L"|x|^3", L"\exp(-x^2)", L"1/(1+x^2)", L"x^{10}"]
-    for iplot = 1:4
-        subplot(2, 2, iplot)
-        semilogy(E[iplot, :] .+ 1e-100, ".-", markersize=10)
-        axis([0, Nmax, 1e-18, 1e3])
-        grid(true)
-        xticks(0:10:Nmax)
-        yticks((10.0) .^ (-15:5:0))
-        ylabel("error")
-        text(32, 0.004, labels[iplot])
-    end
-end
+p30c() = _p30(gauss)
 
 # p31 - gamma function via complex integral, trapezoid rule
 function p31()
