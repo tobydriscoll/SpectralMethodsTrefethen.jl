@@ -49,25 +49,21 @@ end
 Nodes and weights for Clenshaw-Curtis quadrature
 """
 function clencurt(N)
-    θ = [ pi*i/N for i=0:N ];
-    x = cos.(θ);
-    w = zeros(N+1);
-    ii = 2:N;
-    v = ones(N-1);
-    if mod(N,2)==0
-        w[1] = w[N+1] = 1/(N^2-1);
-        for k = 1:N/2-1
-            v = v - 2*cos.(2*k*θ[ii]) / (4*k^2-1);
-        end
-        v = v - cos.(N*θ[ii]) / (N^2-1);
-    else
-        w[1] = w[N+1] = 1/N^2;
-        for k = 1:(N-1)/2
-            v = v - 2*cos.(2*k*θ[ii]) / (4*k^2-1);
-        end
+    θ = [π * i / N for i in 0:N]
+    x = cos.(θ)
+    w = zeros(N + 1)
+    v = ones(N-1)
+    for k = 1:(N-1)÷2
+        v -= 2cos.(2 * k * θ[2:N]) / (4 * k^2 - 1)
     end
-    w[ii] = 2*v/N;
-    return x,w
+    if iseven(N)
+        w[1] = w[N+1] = 1 / (N^2 - 1)
+        v -= cos.(N * θ[2:N]) / (N^2 - 1)
+    else
+        w[1] = w[N+1] = 1 / N^2
+    end
+    w[2:N] .= 2v / N
+    return x, w
 end
 
 """
