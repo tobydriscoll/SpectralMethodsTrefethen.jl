@@ -6,15 +6,21 @@
 Chebyshev differentiation matrix and grid.
 """
 function cheb(N)
-    N==0 && return 0,1;
-    x = [ cos(pi*k/N) for k=0:N ];
-    c = [2;ones(N-1);2] .* (-1).^(0:N);
-    dX = x .- x';
-    D  = (c*(1.0./c)') ./ (dX+I(N+1));      # off-diagonal entries
-    D  = D - diagm(vec(sum(D,dims=2)));    # diagonal entries
-    return D,x
+    N == 0 && return 0, 1
+    x = [cos(π * k / N) for k in 0:N]
+    function coeff(k)
+        (k==0) || (k==N) ? 2 : 1
+    end
+    # For off-diagonal entries:
+    D = zeros(N+1,N+1)
+    for i in 0:N
+        for j in [0:i-1;i+1:N]
+            D[i+1,j+1] = coeff(i)/coeff(j) * (-1)^(i+j) / (x[i+1] - x[j+1])
+        end
+        D[i+1,i+1] = -sum(D[i+1,:])
+    end
+    return D, x
 end
-
 
 """
     chebfft(v)
