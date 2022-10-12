@@ -9,15 +9,15 @@ function cheb(N)
     N == 0 && return 0, 1
     x = [cos(π * k / N) for k in 0:N]
     function coeff(k)
-        (k==0) || (k==N) ? 2 : 1
+        (k == 0) || (k == N) ? 2 : 1
     end
     # For off-diagonal entries:
-    D = zeros(N+1,N+1)
+    D = zeros(N + 1, N + 1)
     for i in 0:N
-        for j in [0:i-1;i+1:N]
-            D[i+1,j+1] = coeff(i)/coeff(j) * (-1)^(i+j) / (x[i+1] - x[j+1])
+        for j in [0:i-1; i+1:N]
+            D[i+1, j+1] = coeff(i) / coeff(j) * (-1)^(i + j) / (x[i+1] - x[j+1])
         end
-        D[i+1,i+1] = -sum(D[i+1,:])
+        D[i+1, i+1] = -sum(D[i+1, :])
     end
     return D, x
 end
@@ -32,14 +32,15 @@ function chebfft(v)
     N = length(v) - 1
     N == 0 && return 0
     x = [cos(π * k / N) for k in 0:N]
-    V = [ v; v[N:-1:2] ]
+    V = [v; v[N:-1:2]]
     U = real(fft(V))
     W = ifft(1im * [0:N-1; 0; 1-N:-1] .* U)
     isreal(v) && (W = real(W))
-    w = zeros(eltype(v),N + 1)
+    w = zeros(eltype(v), N + 1)
     @. w[2:N] = -W[2:N] / sqrt(1 - x[2:N]^2)    # transform theta -> x
     w[1] = sum(i^2 * U[i+1] for i in 0:N-1) / N + 0.5 * N * U[N+1]
-    w[N+1] = sum((-1)^(i+1) * i^2 * U[i+1] for i in 0:N-1) / N + 0.5 * (-1)^(N+1) * N * U[N+1]
+    s = sum((-1)^(i + 1) * i^2 * U[i+1] for i in 0:N-1)
+    w[N+1] = s / N + 0.5 * (-1)^(N + 1) * N * U[N+1]
     return w
 end
 
@@ -92,11 +93,11 @@ export toeplitz, view
 Construct Toeplitz matrix from first column and first row. If the row is not
 given, the result is symmetric.
 """
-function toeplitz(col,row=col)
-    m,n = length(col),length(row);
-    col[1]==row[1] || warn("Column wins conflict on the diagonal.");
-    x = [ row[end:-1:2]; col ];
-    return [ x[i-j+n] for i=1:m, j=1:n ]
+function toeplitz(col, row=col)
+    m, n = length(col), length(row)
+    col[1] == row[1] || warn("Column wins conflict on the diagonal.")
+    x = [row[end:-1:2]; col]
+    return [x[i-j+n] for i in 1:m, j in 1:n]
 end
 
 """
@@ -104,6 +105,6 @@ end
 
 Sets the 3D viewing orientation azimuth and elevation (in degrees).
 """
-function view(az::Real,el::Real)
-    gca()[:view_init](el,az-90);
+function view(az::Real, el::Real)
+    gca()[:view_init](el, az - 90)
 end
