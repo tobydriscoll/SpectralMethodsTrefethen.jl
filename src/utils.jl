@@ -72,12 +72,12 @@ end
 Nodes and weights for Gauss quadrature
 """
 function gauss(N)
-    β = [ .5/sqrt(1-1/(2*i)^2) for i = 1:N-1 ];
-    T = diagm(1=>β) + diagm(-1=>β);
-    x,V = eigen(T);
-    i = sortperm(x);
-    w = 2*V[1,i].^2;
-    return x[i],w
+    β = [0.5 / sqrt(1 - 1 / (2i)^2) for i in 1:N-1]
+    T = diagm(-1 => β, 1 => β)
+    x, V = eigen(T)
+    i = sortperm(x)
+    w = 2 * V[1, i] .^ 2
+    return x[i], w
 end
 
 ##
