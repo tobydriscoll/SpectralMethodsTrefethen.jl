@@ -112,7 +112,7 @@ function p4()
     limits!(ax, 0, 2π, 0, 3)
     ax = Axis(fig[2, 2])
     scatterlines!(x, D * v)
-    limsit!(ax, 0, 2π, -2, 2)
+    limits!(ax, 0, 2π, -2, 2)
     error = round(norm(D * v - vprime, Inf), sigdigits=5)
     text!(2.2, 1.4, text="max error = $error", textsize=20)
     return fig
@@ -129,16 +129,13 @@ function p5()
     v_hat = fft(v)
     w_hat = 1im * [0:N/2-1; 0; -N/2+1:-1] .* v_hat
     w = real(ifft(w_hat))
-    clf()
-    subplot(2, 2, 1)
-    plot(x, v, ".-", markersize=6)
-    axis([0, 2pi, -0.5, 1.5])
-    grid(true)
-    title("function")
-    subplot(2, 2, 2), plot(x, D * v, ".-", markersize=6)
-    axis([0, 2pi, -1, 1])
-    grid(true)
-    title("spectral derivative")
+    fig = Figure()
+    ax = Axis(fig[1, 1], title="function")
+    scatterlines!(x, v)
+    limits!(ax, 0, 2π, -0.5, 1.5)
+    ax = Axis(fig[1, 2], title="spectral derivative")
+    scatterlines!(x, w)
+    limits!(ax, 0, 2π, -1, 1)
 
     # Differentiation of exp(sin(x)):
     v = @. exp(sin(x))
@@ -146,12 +143,15 @@ function p5()
     v_hat = fft(v)
     w_hat = 1im * [0:N/2-1; 0; -N/2+1:-1] .* v_hat
     w = real(ifft(w_hat))
-    subplot(2, 2, 3), plot(x, v, ".-", markersize=6)
-    axis([0, 2pi, 0, 3]), grid(true)
-    subplot(2, 2, 4), plot(x, D * v, ".-", markersize=6)
-    axis([0, 2pi, -2, 2]), grid(true)
-    error = round(norm(D * v - vprime, Inf), sigdigits=4)
-    text(2.2, 1.4, "max error = $error", fontsize=8)
+    ax = Axis(fig[2, 1])
+    scatterlines!(x, v)
+    limits!(ax, 0, 2π, 0, 3)
+    ax = Axis(fig[2, 2])
+    scatterlines!(x, w)
+    limits!(ax, 0, 2π, -2, 2)
+    error = round(norm(w - vprime, Inf), sigdigits=5)
+    text!(2.2, 1.4, text="max error = $error", textsize=20)
+    return fig
 end
 
 # p6 - variable coefficient wave equation
@@ -169,7 +169,11 @@ function p6()
     # Time-stepping by leap frog formula:
     tmax = 8
     tplot = 0.15
-    clf()
+    fig = Figure()
+    Axis3(fig[1, 1],
+        xlabel="x", ylabel="t", zlabel="u", 
+        azimuth=10, elevation=70,
+    )
     plotgap = round(tplot / dt)
     dt = tplot / plotgap
     nplots = round(Int, tmax / tplot)
@@ -188,14 +192,9 @@ function p6()
         data[:, i+1] = v
         tdata = [tdata; t]
     end
-    mesh(x, tdata, data', ccount=0)
-    view(10, 70)
-    xlim(0, 2 * pi)
-    ylim(0, tmax)
-    zlim(0, 5)
-    xlabel("x")
-    ylabel("t")
-    zlabel("u")
+    surface!(x, tdata, data)
+    limits!(0, 2 * pi, 0, tmax, 0, 5)
+    return fig
 end
 
 # p6u - variable coefficient wave equation - UNSTABLE VARIANT
@@ -214,7 +213,11 @@ function p6u()
     # Time-stepping by leap frog formula:
     tmax = 8
     tplot = 0.15
-    clf()
+    fig = Figure()
+    Axis3(fig[1, 1],
+        xlabel="x", ylabel="t", zlabel="u", 
+        azimuth=10, elevation=70,
+    )
     plotgap = round(Int, tplot / dt)
     nplots = round(Int, tmax / tplot)
     data = [v zeros(N, nplots)]
@@ -238,14 +241,9 @@ function p6u()
     end
 
     # Plot results:
-    mesh(x, tdata, data', ccount=0)
-    xlim(0, 2 * pi)
-    ylim(0, tmax)
-    zlim(-3, 3)
-    xlabel("x")
-    ylabel("t")
-    zlabel("u")
-    view(10, 70)
+    surface!(x, tdata, data)
+    limits!(0, 2 * pi, 0, tmax, 0, 5)
+    return fig
 end
 
 # p7 - accuracy of periodic spectral differentiation
@@ -253,7 +251,7 @@ function p7()
     # Compute derivatives for various values of N:
     Nmax = 50
     allN = 6:2:Nmax
-    E = zeros(4, length(allN))
+    E = zeros(2, 2, length(allN))
     for N = 6:2:Nmax
         h = 2 * pi / N
         x = h * (1:N)
@@ -262,32 +260,32 @@ function p7()
         v = @. abs(sin(x))^3                     # 3rd deriv in BV
         vprime = @. 3 * sin(x) * cos(x) * abs(sin(x))
         j = round(Int, N / 2 - 2)
-        E[1, j] = norm(D * v - vprime, Inf)
+        E[1, 1, j] = norm(D * v - vprime, Inf)
         v = @. exp(-sin(x / 2)^(-2))               # C-infinity
         vprime = @. 0.5 * v * sin(x) / sin(x / 2)^4
-        E[2, j] = norm(D * v - vprime, Inf)
+        E[1, 2, j] = norm(D * v - vprime, Inf)
         v = @. 1 / (1 + sin(x / 2)^2)                 # analytic in a strip
         vprime = @. -sin(x / 2) * cos(x / 2) * v^2
-        E[3, j] = norm(D * v - vprime, Inf)
+        E[2, 1, j] = norm(D * v - vprime, Inf)
         v = sin.(10 * x)
         vprime = 10 * cos.(10 * x)   # band-limited
-        E[4, j] = norm(D * v - vprime, Inf)
+        E[2, 2, j] = norm(D * v - vprime, Inf)
     end
 
     # Plot results:
-    titles = [L"|\sin(x)|^3", L"\exp(-\sin^{-2}(x/2))", L"1/(1+\sin^2(x/2))", L"\sin(10x)"]
-    clf()
-    for iplot = 1:4
-        subplot(2, 2, iplot)
-        semilogy(allN, E[iplot, :], ".-", markersize=6)
-        axis([0, Nmax, 1e-16, 1e3])
-        grid(true)
-        xticks(0:10:Nmax)
-        yticks(10.0 .^ (-15:5:0))
-        title(titles[iplot])
-        iplot > 2 ? xlabel("N") : nothing
-        iplot % 2 > 0 ? ylabel("error") : nothing
+    titles = [L"|\sin(x)|^3" L"\exp(-\sin^{-2}(x/2))"; L"1/(1+\sin^2(x/2))" L"\sin(10x)"]
+    fig = Figure()
+    for i in CartesianIndices(titles)
+        ax = Axis(fig[i[1], i[2]],
+            title=titles[i], yscale=log10,
+            xticks=0:10:Nmax, yticks=LogTicks(LinearTicks(4)),
+        )
+        scatterlines!(allN, E[i, :])
+        limits!(0, Nmax, 1e-16, 1e3)
+        ax.xlabel = (i[1] == 2) ? "N" : ""
+        ax.ylabel = (i[2] == 1) ? "error" : ""
     end
+    return fig
 end
 
 # p8 - eigenvalues of harmonic oscillator -u"+x^2 u on R
@@ -310,22 +308,22 @@ end
 function p9()
     N = 16
     xx = -1.01:0.005:1.01
-    clf()
-    for i = 1:2
-        i == 1 && ((s, x) = ("equispaced points", -1 .+ 2 * (0:N) / N))
-        i == 2 && ((s, x) = ("Chebyshev points", cos.(pi * (0:N) / N)))
-        subplot(2, 2, i)
+    fig = Figure()
+    labels = ["equispaced points", "Chebyshev points"]
+    points = [-1 .+ 2 * (0:N) / N, cos.(pi * (0:N) / N)]
+    for (i,(s,x)) in enumerate(zip(labels,points))
+        ax = Axis(fig[i, 1], title=s)
         u = @. 1 / (1 + 16 * x^2)
         uu = @. 1 / (1 + 16 * xx^2)
         p = fit(x, u)              # interpolation
         pp = p.(xx)                    # evaluation of interpolant
-        plot(x, u, ".", markersize=6)
-        plot(xx, pp)
-        axis([-1.1, 1.1, -1, 1.5])
-        title(s)
+        lines!(xx, pp)
+        scatter!(x, u)
+        limits!(-1.1, 1.1, -1, 1.5)
         error = round(norm(uu - pp, Inf), sigdigits=5)
-        text(-0.5, -0.5, "max error = $error", fontsize=8)
+        text!(-0.5, -0.5, text="max error = $error")
     end
+    return fig
 end
 
 # p10 - polynomials and corresponding equipotential curves
