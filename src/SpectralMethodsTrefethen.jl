@@ -4,7 +4,8 @@ module SpectralMethodsTrefethen
 export cheb, chebfft, clencurt, gauss
 
 using LinearAlgebra, SparseArrays
-using PyPlot
+# using PyPlot
+using GLMakie
 using Dierckx
 using FFTW
 using Polynomials
@@ -23,6 +24,6 @@ export cheb, chebfft, clencurt, gauss, toeplitz, view
 pygui(true)
 
 include("utils.jl")
-include("codes.jl")
+include("codes_makie.jl")
 
 end
