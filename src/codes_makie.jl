@@ -4,7 +4,7 @@ function p1()
     Axis(
         fig[1, 1],
         xscale=log10, yscale=log10,
-        xlabel=L"N", ylabel="error",
+        xlabel="N", ylabel="error",
         title="Convergence of fourth-order finite differences",
     )
     # For various N, set up grid in [-pi,pi] and function u(x):
@@ -36,7 +36,7 @@ function p2()
     Axis(
         fig[1, 1],
         xscale=log10, yscale=log10,
-        xlabel=L"N", ylabel="error",
+        xlabel="N", ylabel="error",
         title="Convergence of spectral differentiation",
     )
      for N = 2:2:100
@@ -251,39 +251,39 @@ function p7()
     # Compute derivatives for various values of N:
     Nmax = 50
     allN = 6:2:Nmax
-    E = zeros(2, 2, length(allN))
-    for N = 6:2:Nmax
-        h = 2 * pi / N
-        x = h * (1:N)
-        column = [0; @. 0.5 * (-1)^(1:N-1) * cot((1:N-1) * h / 2)]
-        D = toeplitz(column, column[[1; N:-1:2]])
-        v = @. abs(sin(x))^3                     # 3rd deriv in BV
-        vprime = @. 3 * sin(x) * cos(x) * abs(sin(x))
-        j = round(Int, N / 2 - 2)
-        E[1, 1, j] = norm(D * v - vprime, Inf)
-        v = @. exp(-sin(x / 2)^(-2))               # C-infinity
-        vprime = @. 0.5 * v * sin(x) / sin(x / 2)^4
-        E[1, 2, j] = norm(D * v - vprime, Inf)
-        v = @. 1 / (1 + sin(x / 2)^2)                 # analytic in a strip
-        vprime = @. -sin(x / 2) * cos(x / 2) * v^2
-        E[2, 1, j] = norm(D * v - vprime, Inf)
-        v = sin.(10 * x)
-        vprime = 10 * cos.(10 * x)   # band-limited
-        E[2, 2, j] = norm(D * v - vprime, Inf)
-    end
-
-    # Plot results:
-    titles = [L"|\sin(x)|^3" L"\exp(-\sin^{-2}(x/2))"; L"1/(1+\sin^2(x/2))" L"\sin(10x)"]
+    data = [ 
+        # uʹʹʹ in BV
+        (x -> abs(sin(x))^3,  x -> 3 * sin(x) * cos(x) * abs(sin(x)), 
+            L"|\sin(x)|^3", (1,1)), 
+        # C-infinity
+        (x -> exp(-sin(x / 2)^(-2)), 
+            x -> 0.5exp(-sin(x / 2)^(-2)) * sin(x) / sin(x / 2)^4, 
+            L"\exp(-\sin^{-2}(x/2))", (1,2)), 
+        # analytic in a strip
+        (x -> 1 / (1 + sin(x / 2)^2), 
+            x -> -sin(x / 2) * cos(x / 2) / (1 + sin(x / 2)^2)^2,
+            L"1/(1+\sin^2(x/2))", (2,1) ),
+        # band-limited 
+        (x -> sin(10x), x -> 10cos(10x),  L"\sin(10x)", (2,2))
+    ]
     fig = Figure()
-    for i in CartesianIndices(titles)
-        ax = Axis(fig[i[1], i[2]],
-            title=titles[i], yscale=log10,
+    E = zeros(length(allN))
+    for (fun,deriv,title,pos) in data
+        for (k,N) in enumerate(allN)
+            h = 2π / N
+            x = h * (1:N)
+            column = [0; @. 0.5 * (-1)^(1:N-1) * cot((1:N-1) * h / 2)]
+            D = toeplitz(column, column[[1; N:-1:2]])
+            E[k] = norm(D * fun.(x) - deriv.(x), Inf)
+        end
+        ax = Axis(fig[pos[1], pos[2]],
+            title=title, yscale=log10,
             xticks=0:10:Nmax, yticks=LogTicks(LinearTicks(4)),
         )
-        scatterlines!(allN, E[i, :])
+        scatterlines!(allN, E)
         limits!(0, Nmax, 1e-16, 1e3)
-        ax.xlabel = (i[1] == 2) ? "N" : ""
-        ax.ylabel = (i[2] == 1) ? "error" : ""
+        ax.xlabel = (pos[1] == 2) ? "N" : ""
+        ax.ylabel = (pos[2] == 1) ? "error" : ""
     end
     return fig
 end
@@ -310,7 +310,7 @@ function p9()
     xx = -1.01:0.005:1.01
     fig = Figure()
     labels = ["equispaced points", "Chebyshev points"]
-    points = [-1 .+ 2 * (0:N) / N, cos.(pi * (0:N) / N)]
+    points = [-1 .+ 2 * (0:N) / N, cospi.((0:N) / N)]
     for (i,(s,x)) in enumerate(zip(labels,points))
         ax = Axis(fig[i, 1], title=s)
         u = @. 1 / (1 + 16 * x^2)
@@ -329,94 +329,83 @@ end
 # p10 - polynomials and corresponding equipotential curves
 function p10()
     N = 16
-    clf()
+    fig = Figure()
     xx = -1.01:0.005:1.01
-    for i = 1:2
-        i == 1 && ((s, x) = ("equispaced points", -1 .+ 2 * (0:N) / N))
-        i == 2 && ((s, x) = ("Chebyshev points", cos.(pi * (0:N) / N)))
+    labels = ["equispaced points", "Chebyshev points"]
+    points = [-1 .+ 2 * (0:N) / N, cospi.((0:N) / N)]
+    for (i,(s,x)) in enumerate(zip(labels,points))
         p = fromroots(x)
 
         # Plot p(x) over [-1,1]:
         xx = -1:0.005:1
         pp = p.(xx)
-        subplot(2, 2, 2 * i - 1)
-        plot(x, 0 * x, "k.", markersize=6)
-        plot(xx, pp)
-        grid(true)
-        xticks(-1:0.5:1)
-        title(s)
+        Axis(fig[i, 1], xticks=-1:0.5:1, title=s)
+        scatter!(x, zero(x))
+        lines!(xx, pp)
 
         # Plot equipotential curves:
-        subplot(2, 2, 2 * i)
-        plot(real(x), imag(x), ".", markersize=6)
-        axis([-1.4, 1.4, -1.12, 1.12])
+        Axis(fig[i, 2], xticks=-1:0.5:1, title=s)
+        scatter!(real(x), imag(x))
         xx = -1.4:0.02:1.4
         yy = -1.12:0.02:1.12
-        zz = xx' .+ 1im * yy
+        zz = [complex(x,y) for x in xx, y in yy]
         pp = p.(zz)
         levels = 10.0 .^ (-4:0)
-        contour(xx, yy, abs.(pp), levels, colors="k")
-        title(s)
+        contour!(xx, yy, abs.(pp); levels, color=:black)
+        limits!(-1.4, 1.4, -1.12, 1.12)
     end
+    return fig
 end
 
 # p11 - Chebyshev differentation of a smooth function
 function p11()
     xx = -1:0.01:1
     uu = @. exp(xx) * sin(5 * xx)
-    clf()
-    for N = [10, 20]
+    fig = Figure()
+    for (i,N) in enumerate([10, 20])
         D, x = cheb(N)
         u = @. exp(x) * sin(5 * x)
-        PyPlot.axes([0.15, 0.66 - 0.4 * (N == 20), 0.31, 0.28])
-        plot(x, u, ".", markersize=6)
-        grid(true)
-        plot(xx, uu)
-        title("u(x),  N=$N")
+        Axis(fig[i, 1], title="u(x),  N=$N")
+        scatter!(x, u)
+        lines!(xx, uu)
         error = D * u - @. exp(x) * (sin(5 * x) + 5 * cos(5 * x))
-        PyPlot.axes([0.55, 0.66 - 0.4 * (N == 20), 0.31, 0.28])
-        plot(x, error, ".-", markersize=6)
-        grid(true)
-        title("error in u'(x),  N=$N")
+        Axis(fig[i, 2], title="error in uʹ(x),  N=$N")
+        scatterlines!(x, error)
     end
+    return fig
 end
 
 # p12 - accuracy of Chebyshev spectral differentiation
 function p12()
     # Compute derivatives for various values of N:
     Nmax = 50
-    allN = 6:2:Nmax
-    E = zeros(4, Nmax)
-    for N = 1:Nmax
-        (D, x) = cheb(N)
-        v = @. abs(x)^3
-        vprime = @. 3 * x * abs(x)   # 3rd deriv in BV
-        E[1, N] = norm(D * v - vprime, Inf)
-        v = @. exp(-x^(-2))
-        vprime = @. 2 * v / x^3  # C-infinity
-        E[2, N] = norm(D * v - vprime, Inf)
-        v = @. 1 / (1 + x^2)
-        vprime = @. -2 * x * v^2    # analytic in [-1,1]
-        E[3, N] = norm(D * v - vprime, Inf)
-        v = x .^ 10
-        vprime = 10 * x .^ 9               # polynomial
-        E[4, N] = norm(D * v - vprime, Inf)
+    data = [ 
+        # uʹʹʹ in BV
+        (x -> abs(x)^3,  x -> 3x * abs(x), L"|x|^3", (1,1)), 
+        # C-infinity
+        (x -> exp(-x^(-2)), x -> 2exp(-x^(-2)) / x^3, L"\exp(-x^{-2})", (1,2)), 
+        # analytic in [-1,1]
+        (x -> 1 / (1 + x^2), x -> -2x / (1 + x^2)^2, L"1/(1+x^2)", (2,1) ),
+        # polynomial 
+        (x -> x^10, x -> 10x^9,  L"x^{10}", (2,2))
+    ]
+    fig = Figure()
+    E = zeros(Nmax)
+    for (fun,deriv,title,pos) in data
+        for N in 1:Nmax
+            D, x = cheb(N)
+            E[N] = norm(D * fun.(x) - deriv.(x), Inf)
+        end
+        ax = Axis(fig[pos[1], pos[2]];
+            title, yscale=log10,
+            xticks=0:10:Nmax, yticks=LogTicks(LinearTicks(4)),
+        )
+        scatterlines!(1:Nmax, E)
+        limits!(0, Nmax, 1e-16, 1e3)
+        (pos[1] == 2) && (ax.xlabel = "N")
+        (pos[2] == 1) && (ax.ylabel = "error")
     end
-
-    # Plot results:
-    titles = [L"|x|^3", L"\exp(-x^2)", L"1/(1+x^2)", L"x^{10}"]
-    clf()
-    for iplot = 1:4
-        subplot(2, 2, iplot)
-        semilogy(1:Nmax, E[iplot, :], ".-", markersize=6)
-        axis([0, Nmax, 1e-16, 1e3])
-        grid(true)
-        xticks(0:10:Nmax)
-        yticks(10.0 .^ (-15:5:0))
-        title(titles[iplot])
-        iplot > 2 ? xlabel("N") : nothing
-        iplot % 2 > 0 ? ylabel("error") : nothing
-    end
+    return fig
 end
 
 # p13 - solve linear BVP u_xx = exp(4x), u(-1)=u(1)=0
@@ -428,15 +417,15 @@ function p13()
     f = @. exp(4 * x[2:N])
     u = D2 \ f                           # Poisson eq. solved here
     u = [0; u; 0]
-    clf()
-    axes([0.1, 0.4, 0.8, 0.5])
-    plot(x, u, ".", markersize=6)
     xx = -1:0.01:1
     uu = fit(x, u).(xx)      # interpolate grid data
-    plot(xx, uu)
-    grid(true)
     exact = @. (exp(4 * xx) - sinh(4) * xx - cosh(4)) / 16
-    title("max err = $(round(norm(uu-exact,Inf),sigdigits=4))", fontsize=12)
+    err = round(norm(uu-exact,Inf),sigdigits=4)
+    fig = Figure()
+    Axis( fig[1, 1], title="max err = $err" )
+    scatter!(x, u)
+    lines!(xx, uu)
+    return fig
 end
 
 # p14 - solve nonlinear BVP u_xx = exp(u), u(-1)=u(1)=0
@@ -450,18 +439,18 @@ function p14()
     it = 0
     while change > 1e-15                   # fixed-point iteration
         unew = D2 \ exp.(u)
-        global change = norm(unew - u, Inf)
-        global u = unew
-        global it = it + 1
+        change = norm(unew - u, Inf)
+        u = unew
+        it += 1
     end
     u = [0; u; 0]
-    clf()
-    PyPlot.axes([0.1, 0.4, 0.8, 0.5])
-    plot(x, u, ".", markersize=6)
     xx = -1:0.01:1
     uu = fit(x, u).(xx)
-    plot(xx, uu), grid(true)
-    title("no. steps = $it      u(0) =$(u[Int(N/2+1)])")
+    fig = Figure()
+    Axis( fig[1, 1], title="no. steps = $it      u(0) = $(u[N÷2+1])" )
+    scatter!(x, u)
+    lines!(xx, uu)
+    return fig
 end
 
 # p15 - solve eigenvalue BVP u_xx = lambda*u, u(-1)=u(1)=0
@@ -474,19 +463,19 @@ function p15()
     ii = sortperm(-lam)          # sort eigenvalues and -vectors
     lam = lam[ii]
     V = V[:, ii]
-    clf()
+    fig = Figure()
     for j = 5:5:30                  # plot 6 eigenvectors
         u = [0; V[:, j]; 0]
-        subplot(7, 1, j ÷ 5)
-        plot(x, u, ".", markersize=6)
-        grid(true)
+        ax = Axis( fig[j ÷ 5, 1] )
+        scatter!(x, u)
         xx = -1:0.01:1
         uu = fit(x, u).(xx)
-        plot(xx, uu)
-        axis("off")
-        text(-0.4, 0.1, "eig $j = $(lam[j]*4/pi^2) π^2/4")
-        text(0.7, 0.1, "$(round(4*N/(pi*j),sigdigits=2))  ppw")
+        lines!(xx, uu)
+        hidespines!(ax); hidedecorations!(ax)
+        text!(-0.4, 0.1, text="eig $j = $(lam[j]*4/pi^2) π^2/4", textsize=22)
+        text!(0.7, 0.1, text="$(round(4*N/(pi*j),sigdigits=2))  ppw", textsize=22)
     end
+    return fig
 end
 
 # p16 - Poisson eq. on [-1,1]x[-1,1] with u=0 on boundary

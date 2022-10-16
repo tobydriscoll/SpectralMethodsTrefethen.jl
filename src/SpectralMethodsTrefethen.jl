@@ -5,7 +5,7 @@ export cheb, chebfft, clencurt, gauss
 
 using LinearAlgebra, SparseArrays
 # using PyPlot
-using GLMakie
+using CairoMakie,GLMakie
 using Dierckx
 using FFTW
 using Polynomials
@@ -21,11 +21,10 @@ export p21, p22, p23, p24, p25, p26, p27, p28, p29, p30
 export p31, p32, p33, p34, p35, p36, p37, p38, p39, p40
 export p6u, p23a, p24fine, p28b, p30b, p30c
 
-# pygui(true)
-update_theme!(fontsize=28)
-# update_theme!(GLMakie.Text(textsize=32,))
-
 include("utils.jl")
 include("codes_makie.jl")
+
+set_theme!(SMT_theme)
+CairoMakie.activate!()
 
 end
