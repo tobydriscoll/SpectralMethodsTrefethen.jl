@@ -108,3 +108,9 @@ Sets the 3D viewing orientation azimuth and elevation (in degrees).
 function view(az::Real, el::Real)
     gca()[:view_init](el, az - 90)
 end
+
+##
+## Makie theme 
+##
+
+SMT_theme = Theme(fontsize=28)
