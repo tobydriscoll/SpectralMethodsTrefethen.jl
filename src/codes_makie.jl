@@ -490,28 +490,27 @@ function p16()
     D2 = D^2
     D2 = D2[2:N, 2:N]
     L = kron(I(N - 1), D2) + kron(D2, I(N - 1))                       # Laplacian
-    figure(1)
-    clf()
-    spy(L)
-    @elapsed u = L \ f[:]           # solve problem and watch the clock
+    fig = Figure()
+    # Axis(fig[1, 1], title="Matrix nonzeros", aspect=DataAspect())
+    # spy!(sparse(L), markersize=4)
+    # ylims!((N-1)^2, 1)
+    @time u = L \ f[:]           # solve problem and watch the clock
 
     # Reshape long 1D results onto 2D grid (flipping orientation):
     uu = zeros(N + 1, N + 1)
     uu[N:-1:2, N:-1:2] = reshape(u, N - 1, N - 1)
-    value = uu[Int(3N / 4 + 1), Int(3N / 4 + 1)]
+    value = uu[3N ÷ 4 + 1, 3N ÷ 4 + 1]
 
     # Interpolate to finer grid and plot:
     xxx = yyy = -1:0.04:1
     s = Spline2D(x[end:-1:1], y[end:-1:1], uu, kx=1, ky=1)
-    uuu = s.(xxx, yyy')
-    figure(2)
-    clf()
-    surf(xxx, yyy, uuu, rstride=1, cstride=1)
-    xlabel("x")
-    ylabel("y")
-    zlabel("u")
-    view(-37.5, 30)
-    text3D(0.4, -0.3, -0.3, "\$u(2^{-1/2},2^{-1/2})\$ = $(round(value,sigdigits=11))", fontsize=9)
+    uuu = evalgrid(s, xxx, yyy)
+    ax3 = Axis3(fig[1, 1], xlabel="x", ylabel="y", zlabel="u")
+    surface!(xxx, yyy, uuu)
+    ax3.azimuth = -π / 5; ax3.elevation = π / 6
+    text(0.4, -0.3, -0.3, text="\$u(2^{-1/2},2^{-1/2}) =\$ $(round(value,sigdigits=11))")
+    text(0.4, -0.3, -0.3, text="\$u(2^{-1/2},2^{-1/2}) =\$", textsize=40)
+    return fig
 end
 
 # p17 - Helmholtz eq. u_xx + u_yy + (k^2)u = f
