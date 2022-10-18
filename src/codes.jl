@@ -24,6 +24,7 @@ function p1()
     title("Convergence of fourth-order finite differences")
     loglog(Nvec, 1.0 ./ Nvec .^ 4, "--")
     text(105, 5e-8, L"N^{-4}", fontsize=14)
+    return gcf()
 end
 
 # p2 - convergence of periodic spectral method (compare p1.jl)
@@ -48,6 +49,7 @@ function p2()
     xlabel("N")
     ylabel("error")
     title("Convergence of spectral differentiation")
+    return gcf()
 end
 
 # p3 - band-limited interpolation
@@ -73,6 +75,7 @@ function p3()
         xticks(1:0)
         yticks(0:1)
     end
+    return gcf()
 end
 
 # p4 - periodic spectral differentiation
@@ -106,6 +109,7 @@ function p4()
     axis([0, 2π, -2, 2]), grid(true)
     error = round(norm(D * v - vʹ, Inf), sigdigits=5)
     text(2.2, 1.4, "max error = $error", fontsize=8)
+    return gcf()
 end
 
 # p5 - repetition of p4 via FFT
@@ -142,6 +146,7 @@ function p5()
     axis([0, 2π, -2, 2]), grid(true)
     error = round(norm(D * v - vʹ, Inf), sigdigits=4)
     text(2.2, 1.4, "max error = $error", fontsize=8)
+    return gcf()
 end
 
 # p6 - variable coefficient wave equation
@@ -186,11 +191,11 @@ function p6()
     xlabel("x")
     ylabel("t")
     zlabel("u")
+    return gcf()
 end
 
 # p6u - variable coefficient wave equation - UNSTABLE VARIANT
 function p6u()
-
     # Grid, variable coefficient, and initial data:
     N = 128
     h = 2π / N
@@ -236,6 +241,7 @@ function p6u()
     ylabel("t")
     zlabel("u")
     view(10, 70)
+    return gcf()
 end
 
 # p7 - accuracy of periodic spectral differentiation
@@ -278,6 +284,7 @@ function p7()
         iplot > 2 ? xlabel("N") : nothing
         iplot % 2 > 0 ? ylabel("error") : nothing
     end
+    return gcf()
 end
 
 # p8 - eigenvalues of harmonic oscillator -u"+x^2 u on R
@@ -316,6 +323,7 @@ function p9()
         error = round(norm(uu - pp, Inf), sigdigits=5)
         text(-0.5, -0.5, "max error = $error", fontsize=8)
     end
+    return gcf()
 end
 
 # p10 - polynomials and corresponding equipotential curves
@@ -350,6 +358,7 @@ function p10()
         contour(xx, yy, abs.(pp)', levels, colors="k")
         title(s)
     end
+    return gcf()
 end
 
 # p11 - Chebyshev differentation of a smooth function
@@ -371,6 +380,7 @@ function p11()
         grid(true)
         title("error in u'(x),  N=$N")
     end
+    return gcf()
 end
 
 # p12 - accuracy of Chebyshev spectral differentiation
@@ -408,6 +418,7 @@ function p12()
         iplot > 2 ? xlabel("N") : nothing
         iplot % 2 > 0 ? ylabel("error") : nothing
     end
+    return gcf()
 end
 
 # p13 - solve linear BVP u_xx = exp(4x), u(-1)=u(1)=0
@@ -428,6 +439,7 @@ function p13()
     grid(true)
     exact = @. (exp(4xx) - sinh(4) * xx - cosh(4)) / 16
     title("max err = $(round(norm(uu-exact,Inf),sigdigits=4))", fontsize=12)
+    return gcf()
 end
 
 # p14 - solve nonlinear BVP u_xx = exp(u), u(-1)=u(1)=0
@@ -453,6 +465,7 @@ function p14()
     uu = fit(x, u).(xx)
     plot(xx, uu), grid(true)
     title("no. steps = $it      u(0) =$(u[Int(N/2+1)])")
+    return gcf()
 end
 
 # p15 - solve eigenvalue BVP u_xx = λ*u, u(-1)=u(1)=0
@@ -478,6 +491,7 @@ function p15()
         text(-0.4, 0.1, "eig $j = $(λ[j]*4/π^2) π^2/4")
         text(0.7, 0.1, "$(round(4*N/(π*j),sigdigits=2))  ppw")
     end
+    return gcf()
 end
 
 # p16 - Poisson eq. on [-1,1]x[-1,1] with u=0 on boundary
@@ -492,7 +506,7 @@ function p16()
     D² = D^2
     D² = D²[2:N, 2:N]
     L = kron(I(N - 1), D²) + kron(D², I(N - 1))                       # Laplacian
-    figure(1)
+    fig1 = figure(1)
     clf()
     spy(L)
     @elapsed u = L \ f[:]           # solve problem and watch the clock
@@ -506,7 +520,7 @@ function p16()
     xxx = yyy = -1:0.04:1
     s = Spline2D(x[end:-1:1], y[end:-1:1], uu, kx=1, ky=1)
     uuu = s.(xxx, yyy')
-    figure(2)
+    fig2 = figure(2)
     clf()
     surf(xxx, yyy, uuu', rstride=1, cstride=1)
     xlabel("x")
@@ -514,6 +528,7 @@ function p16()
     zlabel("u")
     view(-37.5, 30)
     text3D(0.4, -0.3, -0.3, "\$u(2^{-1/2},2^{-1/2})\$ = $(round(value,sigdigits=11))", fontsize=9)
+    return [fig1,fig2]
 end
 
 # p17 - Helmholtz eq. u_xx + u_yy + (k^2)u = f
@@ -550,6 +565,7 @@ function p17()
     clf()
     contour(xxx, yyy, uuu, 10)
     axis("square")
+    return gcf()
 end
 
 # p18 - Chebyshev differentiation via FFT (compare p11.jl)
@@ -571,6 +587,7 @@ function p18()
         grid(true)
         title("error in f'(x),  N=$N")
     end
+    return gcf()
 end
 
 # p19 - 2nd-order wave eq. on Chebyshev grid (compare p6.jl)
@@ -611,6 +628,7 @@ function p19()
     xlabel("x")
     ylabel("t")
     zlabel("u")
+    return gcf()
 end
 
 # p20 - 2nd-order wave eq. in 2D via FFT (compare p19.m)
@@ -666,6 +684,7 @@ function p20()
         vvold = vv
         vv = vvnew
     end
+    return gcf()
 end
 
 # p21 - eigenvalues of Mathieu operator -u_xx + 2qcos(2x)u
@@ -688,6 +707,7 @@ function p21()
     ylabel("λ")
     axis([0, 15, -24, 32])
     yticks(-24:4:32)
+    return gcf()
 end
 
 # p22 - 5th eigenvector of Airy equation u_xx = λ*x*u
@@ -712,6 +732,7 @@ function p22()
         grid(true)
         title("N = $N     eig = $(round(λ,sigdigits=13))")
     end
+    return gcf()
 end
 
 # p23 - eigenvalues of perturbed Laplacian on [-1,1]x[-1,1]
@@ -748,6 +769,7 @@ function p23()
         axis("square")
         title("eig = $(round(D[i]/(π^2/4),sigdigits=13)) π^2/4")
     end
+    return gcf()
 end
 
 # p23a - eigenvalues of UNperturbed Laplacian on [-1,1]x[-1,1]
@@ -784,6 +806,7 @@ function p23a()
         axis("square")
         title("eig = $(round(D[i]/(π^2/4),sigdigits=13)) π^2/4")
     end
+    return gcf()
 end
 
 # p24 - pseudospectra of Davies's complex harmonic oscillator
@@ -809,6 +832,7 @@ function p24()
     minsvd(z) = minimum(svdvals(z * I - A))
     sigmin = [minsvd(x[i] + 1im * y[j]) for i = eachindex(x), j = eachindex(y)]
     contour(x, y, sigmin', levels=10.0 .^ (-4:0.5:-0.5))
+    return gcf()
 end
 
 # p24 - pseudospectra of Davies's complex harmonic oscillator
@@ -833,6 +857,7 @@ function p24fine()
     minsvd(z) = minimum(svdvals(z * I - A))
     sigmin = [minsvd(x[i] + 1im * y[j]) for i = eachindex(x), j = eachindex(y)]
     contour(x, y, sigmin', levels=10.0 .^ (-4:0.5:-0.5))
+    return gcf()
 end
 
 # p25 - stability regions for ODE formulas
@@ -907,6 +932,7 @@ function p25()
     axis([-5, 2, -3.5, 3.5])
     grid(true)
     title("Runge—Kutta")
+    return gcf()
 end
 
 # p26 - eigenvalues of 2nd-order Chebyshev diff. matrix
@@ -943,6 +969,7 @@ function p26()
     axis([-1, 1, 5e-6, 1])
     plot(x[2:N], abs.(vN), "k.", markersize=4)
     title("absolute value of eigenmode N    (log scale)")
+    return gcf()
 end
 
 # p27 - Solve KdV eq. u_t + uu_x + u_xxx = 0 on [-π,π] by
@@ -991,6 +1018,7 @@ function p27()
     zlim(0, 12000)
     |
     zticks([0, 2000])
+    return gcf()
 end
 
 # p28 - eigenmodes of Laplacian on the disk (compare p22.jl)
@@ -1045,6 +1073,7 @@ function p28()
         plot3D(real(z), imag(z), -abs.(z))
         title("Mode $(index[i]):  λ = $(round(λ[i],sigdigits=11))", fontsize=9)
     end
+    return gcf()
 end
 
 # p28b - eigenmodes of Laplacian on the disk
@@ -1097,6 +1126,7 @@ function p28b()
         contour(xx, yy, u, levels=[0])
         title("$(round(λ[i],sigdigits=5))", fontsize=8)
     end
+    return gcf()
 end
 
 # p29 - solve Poisson equation on the unit disk
@@ -1138,6 +1168,7 @@ function p29()
     xlabel("x")
     ylabel("y")
     zlabel("z")
+    return gcf()
 end
 
 function _p30(method)
@@ -1169,6 +1200,7 @@ function _p30(method)
         ylabel("error")
         text(32, 0.004, labels[iplot])
     end
+    return gcf()
 end
 
 # p30 - spectral integration, ODE style (compare p12.jl)
@@ -1215,6 +1247,7 @@ function p31()
     xlabel("Re(z)")
     ylabel("Im(z)")
     text3D(4, -1.4, 5.5, "\$|\\Gamma(z)|\$", fontsize=20)
+    return gcf()
 end
 
 # p32 - solve u_xx = exp(4x), u(-1)=0, u(1)=1 (compare p13.jl)
@@ -1234,6 +1267,7 @@ function p32()
     grid(true)
     exact = @. (exp(4xx) - sinh(4) * xx - cosh(4)) / 16 + (xx + 1) / 2
     title("max err = $(round(norm(uu-exact,Inf),sigdigits=4))", fontsize=12)
+    return gcf()
 end
 
 # p33 - solve linear BVP u_xx = exp(4x), u'(-1)=u(1)=0
@@ -1255,6 +1289,7 @@ function p33()
     grid(true)
     exact = @. (exp(4xx) - 4exp(-4) * (xx - 1) - exp(4)) / 16
     title("max err = $(round(norm(uu-exact,Inf),sigdigits=5))", fontsize=12)
+    return gcf()
 end
 
 # p34 - Allen-Cahn eq. u_t = eps*u_xx+u-u^3, u(-1)=-1, u(1)=1
@@ -1298,6 +1333,7 @@ function p34()
     xlabel("x")
     ylabel("t")
     zlabel("u")
+    return gcf()
 end
 
 # p35 - Allen-Cahn eq. as in p34.m, but with boundary condition
@@ -1342,6 +1378,7 @@ function p35()
     xlabel("x")
     ylabel("t")
     zlabel("u")
+    return gcf()
 end
 
 # p36 - Laplace eq. on [-1,1]x[-1,1] with nonzero BCs
@@ -1375,6 +1412,7 @@ function p36()
     view(-20, 45)
     umid = uu[Int(N / 2)+1, Int(N / 2)+1]
     text3D(0, 0.8, 0.4, "u(0,0) = $(round(umid,sigdigits=9))")
+    return gcf()
 end
 
 # p37 - 2D "wave tank" with Neumann BCs for |y|=1
@@ -1419,6 +1457,7 @@ function p37()
         vv = vvnew
         vv[[1, Ny + 1], :] = BC * vv[2:Ny, :]       # Neumann BCs for |y|=1
     end
+    return gcf()
 end
 
 # p38 - solve u_xxxx = exp(x), u(-1)=u(1)=u'(-1)=u'(1)=0
@@ -1449,6 +1488,7 @@ function p38()
     c = A \ exp.([-1, -1, 1, 1])
     exact = exp.(xx) - V * c
     title("max err = $(round(norm(uu-exact,Inf),sigdigits=5))", fontsize=12)
+    return gcf()
 end
 
 # p39 - eigenmodes of biharmonic on a square with clamped BCs
@@ -1486,6 +1526,7 @@ function p39()
         axis("off")
         text(-0.3, 1.15, "$(round(λ[i],sigdigits=5))", fontsize=7)
     end
+    return gcf()
 end
 
 # p40 - eigenvalues of Orr-Sommerfeld operator (compare p38.jl)
@@ -1513,4 +1554,5 @@ function p40()
         axis([-0.8, 0.2, -1, 0])
         title("N = $N    \$\\lambda_{max}\$ = $(round(maximum(real(ee)),sigdigits=7))")
     end
+    return gcf()
 end
