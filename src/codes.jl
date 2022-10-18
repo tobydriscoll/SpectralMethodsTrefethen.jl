@@ -11,9 +11,8 @@ function p1()
         uprime = @. 2sin(x) * cos(x) * u
 
         # Construct sparse fourth-order differentiation matrix:
-        e = ones(N)
-        D = sparse(1:N, [2:N; 1], 2e / 3) - sparse(1:N, [3:N; 1:2], e / 12)
-        D = (D - D') / h
+        col1 = [ 0; -2/3h; 1/12h; zeros(N-5); -1/12h; 2/3h ]
+        D = sparse( [col1[mod(i-j,N) + 1] for i in 1:N, j in 1:N] )
 
         # Plot max(abs(D*u-uprime)):
         error = norm(D * u - uprime, Inf)
@@ -24,14 +23,13 @@ function p1()
     ylabel("error")
     title("Convergence of fourth-order finite differences")
     loglog(Nvec, 1.0 ./ Nvec .^ 4, "--")
-    text(105, 5e-8, L"N^{-4}", fontsize=18)
+    text(105, 5e-8, L"N^{-4}", fontsize=14)
 end
 
 # p2 - convergence of periodic spectral method (compare p1.jl)
 function p2()
     # For various N (even), set up grid as before:
     clf()
-    PyPlot.axes([0.1, 0.4, 0.8, 0.5])
     for N = 2:2:100
         h = 2π / N
         x = [-π + i * h for i = 1:N]
@@ -39,8 +37,8 @@ function p2()
         uprime = @. cos(x) * u
 
         # Construct spectral differentiation matrix:
-        column = [0; @. 0.5 * (-1)^(1:N-1) * cot((1:N-1) * h / 2)]
-        D = toeplitz(column, column[[1; N:-1:2]])
+        entry(k) = k==0 ? 0 : (-1)^k * 0.5cot( k * h / 2 )
+        D = [ entry(mod(i-j,N)) for i in 1:N, j in 1:N ]
 
         # Plot max(abs(D*u-uprime)):
         error = norm(D * u - uprime, Inf)
