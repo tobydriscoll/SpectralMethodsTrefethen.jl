@@ -78,6 +78,29 @@ function p3()
     return gcf()
 end
 
+# p3 - band-limited interpolation
+function p3g()
+    xmax = 6
+    clf()
+    for (plt,h) in enumerate([1,1/2,1/10])
+        x = -xmax:h:xmax                     # computational grid
+        xx = -xmax-h/20:h/10:xmax+h/20       # plotting grid
+        v = @. float(abs(x) ≤ 3)
+        subplot(3, 1, plt)
+        plot(x, v, ".", markersize=6)
+        # p = zero(xx)
+        # for i in eachindex(x)
+            # @. p += v[i] * sinpi((xx - x[i]) / h) / (π * (xx - x[i]) / h)
+        # end
+        BLI(t) = sum(v[i] * sinpi((t - x[i]) / h) / (π * (t - x[i]) / h) for i in eachindex(x)) 
+        plot(xx, BLI.(xx), "-")
+        axis([-xmax, xmax, -0.25, 1.25])
+        xticks(1:0)
+        yticks(0:1)
+    end
+    return gcf()
+end
+
 # p4 - periodic spectral differentiation
 function p4()
     # Set up grid and differentiation matrix:
