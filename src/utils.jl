@@ -113,4 +113,4 @@ end
 ## Makie theme 
 ##
 
-SMT_theme = Theme(fontsize=28)
+# SMT_theme = Theme(fontsize=28)

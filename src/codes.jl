@@ -152,7 +152,7 @@ function p5()
     axis([0, 2π, -0.5, 1.5])
     grid(true)
     title("function")
-    subplot(2, 2, 2), plot(x, D * v, ".-", markersize=6)
+    subplot(2, 2, 2), plot(x, w, ".-", markersize=6)
     axis([0, 2π, -1, 1])
     grid(true)
     title("spectral derivative")
@@ -165,9 +165,45 @@ function p5()
     w = real(ifft(ŵ))
     subplot(2, 2, 3), plot(x, v, ".-", markersize=6)
     axis([0, 2π, 0, 3]), grid(true)
-    subplot(2, 2, 4), plot(x, D * v, ".-", markersize=6)
+    subplot(2, 2, 4), plot(x, w, ".-", markersize=6)
     axis([0, 2π, -2, 2]), grid(true)
-    error = round(norm(D * v - vʹ, Inf), sigdigits=4)
+    error = round(norm(w - vʹ, Inf), sigdigits=4)
+    text(2.2, 1.4, "max error = $error", fontsize=8)
+    return gcf()
+end
+
+function p5r()
+    #        For complex v, delete "real" commands.
+    # Differentiation of a hat function:
+    N = 24
+    h = 2π / N
+    x = h * (1:N)
+    v = @. max(0, 1 - abs(x - π) / 2)
+    v̂ = rfft(v)
+    ŵ = 1im * [0:N/2-1; 0] .* v̂
+    w = irfft(ŵ,N)
+    clf()
+    subplot(2, 2, 1)
+    plot(x, v, ".-", markersize=6)
+    axis([0, 2π, -0.5, 1.5])
+    grid(true)
+    title("function")
+    subplot(2, 2, 2), plot(x, w, ".-", markersize=6)
+    axis([0, 2π, -1, 1])
+    grid(true)
+    title("spectral derivative")
+
+    # Differentiation of exp(sin(x)):
+    v = @. exp(sin(x))
+    vʹ = @. cos(x) * v
+    v̂ = rfft(v)
+    ŵ = 1im * [0:N/2-1; 0] .* v̂
+    w = irfft(ŵ,N)
+    subplot(2, 2, 3), plot(x, v, ".-", markersize=6)
+    axis([0, 2π, 0, 3]), grid(true)
+    subplot(2, 2, 4), plot(x, w, ".-", markersize=6)
+    axis([0, 2π, -2, 2]), grid(true)
+    error = round(norm(w - vʹ, Inf), sigdigits=4)
     text(2.2, 1.4, "max error = $error", fontsize=8)
     return gcf()
 end
@@ -196,9 +232,9 @@ function p6()
     for i in 1:nplots
         for n in 1:plotgap
             t = t + Δt
-            v̂ = fft(v)
-            ŵ = 1im * [0:N/2-1; 0; -N/2+1:-1] .* v̂
-            w = real(ifft(ŵ))
+            v̂ = rfft(v)
+            ŵ = 1im * [0:N/2-1; 0] .* v̂
+            w = irfft(ŵ,N)
             vnew = vold - 2Δt * c .* w
             vold = v
             v = vnew
