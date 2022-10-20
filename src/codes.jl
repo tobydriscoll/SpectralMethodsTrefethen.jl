@@ -78,7 +78,7 @@ function p3()
     return gcf()
 end
 
-# p3 - band-limited interpolation
+# p3 - Gibbs phenomenon
 function p3g()
     xmax = 6
     clf()
@@ -296,7 +296,7 @@ function p7()
     # Plot results:
     titles = [L"|\sin(x)|^3", L"\exp(-\sin^{-2}(x/2))", L"1/(1+\sin^2(x/2))", L"\sin(10x)"]
     clf()
-    for iplot = 1:4
+    for iplot in 1:4
         subplot(2, 2, iplot)
         semilogy(allN, E[iplot, :], ".-", markersize=6)
         axis([0, Nmax, 1e-16, 1e3])
@@ -313,17 +313,17 @@ end
 # p8 - eigenvalues of harmonic oscillator -u"+x^2 u on R
 function p8()
     L = 8                             # domain is [-L L], periodic
-    for N = 6:6:36
+    N = 6:6:36
+    λ = zeros(4,0)
+    for N in N
         h = 2π / N
-        x = h * (1:N)
-        x = @. L * (x - π) / π
-        column = [-π^2 / 3h^2 - 1 / 6; @. -0.5 * (-1)^(1:N-1) / sin(h * (1:N-1) / 2)^2]
-        D² = (π / L)^2 * toeplitz(column)  # 2nd-order differentiation
-        eigenvalues = sort(eigvals(-D² + diagm(x .^ 2)))
-        @show N
-        foreach(println,eigenvalues[1:4])
-        println("")
+        x = [ (L/π)*(i*h - π) for i in 1:N ]
+        col0 = [-π^2 / 3h^2 - 1 / 6; @. -0.5 * (-1)^(1:N-1) / sin(h * (1:N-1) / 2)^2]
+        D² = (π / L)^2 * [col0[1+mod(i-j,N)] for i in 1:N, j in 1:N]  # 2nd-order differentiation
+        λ = [ λ eigvals(-D² + diagm(x .^ 2))[1:4] ]
     end
+    header = ["N = $n" for n in N]
+    pretty_table(λ;header,formatters=ft_printf("%.14f"))
 end
 
 # p9 - polynomial interpolation in equispaced and Chebyshev pts

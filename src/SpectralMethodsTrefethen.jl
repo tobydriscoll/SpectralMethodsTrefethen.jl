@@ -10,6 +10,7 @@ using FFTW
 using Polynomials
 using LaTeXStrings
 using SpecialFunctions
+using PrettyTables
 import Base:view
 
 export p1, p2, p3, p3g, p4, p5, p6, p7, p8, p9, p10
