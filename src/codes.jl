@@ -402,6 +402,7 @@ function p10()
         plot(x, zero(x), "k.", markersize=6)
         plot(xx, pp)
         grid(true)
+        (i==1) && xticks(-1:0.5:1,[])
         xticks(-1:0.5:1)
         title(s)
 
@@ -409,6 +410,7 @@ function p10()
         subplot(2, 2, 2i)
         plot(real(x), imag(x), ".", markersize=6)
         axis([-1.4, 1.4, -1.12, 1.12])
+        (i==1) && xticks(-1:1,[])
         xx = -1.4:0.02:1.4
         yy = -1.12:0.02:1.12
         zz = [complex(x, y) for x in xx, y in yy]
@@ -425,18 +427,20 @@ function p11()
     xx = -1:0.01:1
     uu = @. exp(xx) * sin(5xx)
     clf()
-    for N = [10, 20]
+    for (k,N) in enumerate([10, 20])
         D, x = cheb(N)
         u = @. exp(x) * sin(5x)
-        PyPlot.axes([0.15, 0.66 - 0.4 * (N == 20), 0.31, 0.28])
+        subplot(2, 2, 2k-1)
         plot(x, u, ".", markersize=6)
         grid(true)
+        (k==1) && xticks(-1:0.5:1,[])
         plot(xx, uu)
         title("u(x),  N=$N")
         error = D * u - @. exp(x) * (sin(5x) + 5cos(5x))
-        PyPlot.axes([0.55, 0.66 - 0.4 * (N == 20), 0.31, 0.28])
+        subplot(2, 2, 2k)
         plot(x, error, ".-", markersize=6)
         grid(true)
+        (k==1) && xticks(-1:0.5:1,[])
         title("error in u'(x),  N=$N")
     end
     return gcf()
@@ -471,11 +475,19 @@ function p12()
         semilogy(1:Nmax, E[iplot, :], ".-", markersize=6)
         axis([0, Nmax, 1e-16, 1e3])
         grid(true)
-        xticks(0:10:Nmax)
-        yticks(10.0 .^ (-15:5:0))
+        if iplot < 3
+            xticks(0:10:Nmax,[])
+        else
+            xticks(0:10:Nmax)
+            xlabel("N")
+        end
+        if iseven(iplot)
+            yticks(10.0 .^ (-15:5:0),[])
+        else
+            yticks(10.0 .^ (-15:5:0))
+            ylabel("error")
+        end
         title(titles[iplot])
-        iplot > 2 ? xlabel("N") : nothing
-        iplot % 2 > 0 ? ylabel("error") : nothing
     end
     return gcf()
 end
