@@ -81,6 +81,30 @@ function gauss(N)
     return x[i], w
 end
 
+"""
+    polyinterp(x, y)
+
+Create a callable function that uses the barycentric formula to evaluates the polynomial interpolating the (x,y) points given in vectors `x` and `y`.
+"""
+function polyinterp(x,y)
+    C = 4/(maximum(x) - minimum(x))
+    weight(i) = 1 / prod(C*(x[i]-x[j]) for j in eachindex(x) if j != i) 
+    w = weight.(eachindex(x))
+    return function(t)
+        denom = numer = 0
+        for i in eachindex(x)
+            if t==x[i]
+                return y[i]
+            else
+                s = w[i] / (t-x[i])
+                denom += s 
+                numer = muladd(y[i],s,numer)
+            end
+        end
+        return numer / denom
+    end
+end
+
 ##
 ## Stand-ins for native functions in MATLAB.
 ##

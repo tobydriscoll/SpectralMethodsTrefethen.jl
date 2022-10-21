@@ -373,7 +373,7 @@ function p9()
         subplot(2, 2, i)
         u = @. 1 / (1 + 16x^2)
         uu = @. 1 / (1 + 16xx^2)
-        p = fit(x, u)              # interpolation
+        p = polyinterp(x, u)              # interpolation
         pp = p.(xx)                    # evaluation of interpolant
         plot(x, u, ".", markersize=6)
         plot(xx, pp)
@@ -493,7 +493,7 @@ function p13()
     axes([0.1, 0.4, 0.8, 0.5])
     plot(x, u, ".", markersize=6)
     xx = -1:0.01:1
-    uu = fit(x, u).(xx)      # interpolate grid data
+    uu = polyinterp(x, u).(xx)      # interpolate grid data
     plot(xx, uu)
     grid(true)
     exact = @. (exp(4xx) - sinh(4) * xx - cosh(4)) / 16
@@ -521,7 +521,7 @@ function p14()
     PyPlot.axes([0.1, 0.4, 0.8, 0.5])
     plot(x, u, ".", markersize=6)
     xx = -1:0.01:1
-    uu = fit(x, u).(xx)
+    uu = polyinterp(x, u).(xx)
     plot(xx, uu), grid(true)
     title("no. steps = $it      u(0) =$(u[Int(N/2+1)])")
     return gcf()
@@ -544,7 +544,7 @@ function p15()
         plot(x, u, ".", markersize=6)
         grid(true)
         xx = -1:0.01:1
-        uu = fit(x, u).(xx)
+        uu = polyinterp(x, u).(xx)
         plot(xx, uu)
         axis("off")
         text(-0.4, 0.1, "eig $j = $(λ[j]*4/π^2) π^2/4")
@@ -785,7 +785,7 @@ function p22()
         v = [0; V[:, ii]; 0]
         v = v / v[Int(N / 2 + 1)] * airyai(0)
         xx = -1:0.01:1
-        vv = fit(x, v).(xx)
+        vv = polyinterp(x, v).(xx)
         subplot(2, 2, N ÷ 12)
         plot(xx, vv)
         grid(true)
@@ -1017,7 +1017,7 @@ function p26()
     # Plot eigenmodes N/4 (physical) and N (nonphysical):
     vN4 = [0; V[:, Int(N / 4 - 1)]; 0]
     xx = -1:0.01:1
-    vv = fit(x, vN4).(xx)
+    vv = polyinterp(x, vN4).(xx)
     PyPlot.axes([0.1, 0.36, 0.8, 0.15])
     plot(xx, vv)
     plot(x, vN4, "k.", markersize=4)
@@ -1321,7 +1321,7 @@ function p32()
     clf()
     plot(x, u, ".", markersize=10)
     xx = -1:0.01:1
-    uu = fit(x, u).(xx)
+    uu = polyinterp(x, u).(xx)
     plot(xx, uu)
     grid(true)
     exact = @. (exp(4xx) - sinh(4) * xx - cosh(4)) / 16 + (xx + 1) / 2
@@ -1343,7 +1343,7 @@ function p33()
     plot(x, u, ".", markersize=10)
     axis([-1, 1, -4, 0])
     xx = -1:0.01:1
-    uu = fit(x, u).(xx)
+    uu = polyinterp(x, u).(xx)
     plot(xx, uu)
     grid(true)
     exact = @. (exp(4xx) - 4exp(-4) * (xx - 1) - exp(4)) / 16
@@ -1370,7 +1370,7 @@ function p34()
     plotgap = round(Int, tplot / Δt)
     Δt = tplot / plotgap
     xx = -1:0.025:1
-    vv = fit(x, v).(xx)
+    vv = polyinterp(x, v).(xx)
     plotdata = [vv zeros(length(xx), nplots)]
     tdata = t
     for i = 1:nplots
@@ -1378,7 +1378,7 @@ function p34()
             t = t + Δt
             v = v + Δt * (eps * D² * (v - x) + v - v .^ 3)    # Euler
         end
-        vv = fit(x, v).(xx)
+        vv = polyinterp(x, v).(xx)
         plotdata[:, i+1] = vv
         tdata = [tdata; t]
     end
@@ -1413,7 +1413,7 @@ function p35()
     plotgap = round(Int, tplot / Δt)
     Δt = tplot / plotgap
     xx = -1:0.025:1
-    vv = fit(x, v).(xx)
+    vv = polyinterp(x, v).(xx)
     plotdata = [vv zeros(length(xx), nplots)]
     tdata = t
     for i = 1:nplots
@@ -1423,7 +1423,7 @@ function p35()
             v[1] = 1 + sin(t / 5)^2
             v[end] = -1               # BC
         end
-        vv = fit(x, v).(xx)
+        vv = polyinterp(x, v).(xx)
         plotdata[:, i+1] = vv
         tdata = [tdata; t]
     end
@@ -1538,7 +1538,7 @@ function p38()
     axis([-1, 1, -0.01, 0.06])
     grid(true)
     xx = (-1:0.01:1)
-    uu = (1 .- xx .^ 2) .* fit(x, S * u).(xx)
+    uu = (1 .- xx .^ 2) .* polyinterp(x, S * u).(xx)
     plot(xx, uu)
 
     # Determine exact solution and print maximum error:
