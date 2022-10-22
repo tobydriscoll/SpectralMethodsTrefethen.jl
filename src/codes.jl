@@ -582,18 +582,15 @@ function p16()
 
     # Reshape long 1D results onto 2D grid (flipping orientation):
     U = zeros(N+1, N+1)
-    # U[N:-1:2, N:-1:2] = reshape(u, N-1, N-1)
     U[2:N, 2:N] = reshape(u, N-1, N-1)
     value = U[N÷4 + 1, N÷4 + 1]
 
     # Interpolate to finer grid and plot:
     xx = yy = -1:0.04:1
-    # s = Spline2D(x[end:-1:1], y[end:-1:1], uu, kx=1, ky=1)
-    # uuu = s.(xxx, yyy')
-    uu = evalgrid(U,xx,yy)
+    UU = gridinterp(U,xx,yy)
     fig2 = figure(2)
     clf()
-    surf(xx, yy, uu', rstride=1, cstride=1)
+    surf(xx, yy, UU', rstride=1, cstride=1)
     xlabel("x")
     ylabel("y")
     zlabel("u")
@@ -606,35 +603,26 @@ end
 function p17()
     # Set up spectral grid and tensor product Helmholtz operator:
     N = 24
-    D, x = cheb(N)
-    y = x
-    xx = x[2:N]
-    yy = y[2:N]
-    f = @. exp(-10 * ((yy - 1)^2 + (xx' - 0.5)^2))
+    ⊗ = kron
+    D, x = D, y = cheb(N)
+    F = [exp(-10 * ((y - 1)^2 + (x - 0.5)^2)) for x in x[2:N], y in y[2:N]]
     D² = D^2
     D² = D²[2:N, 2:N]
     k = 9
-    L = kron(I(N - 1), D²) + kron(D², I(N - 1)) + k^2 * I((N - 1)^2)
+    L = I(N-1) ⊗ D² + D² ⊗ I(N-1) + k^2 * I
 
     # Solve for u, reshape to 2D grid, and plot:
-    u = L \ f[:]
-    uu = zeros(N + 1, N + 1)
-    uu[N:-1:2, N:-1:2] = reshape(u, N - 1, N - 1)
-    xxx = yyy = -1:0.0333:1
-    s = Spline2D(x[end:-1:1], y[end:-1:1], uu)
-    uuu = evalgrid(s, xxx, yyy)
-    figure(1)
+    u = L \ vec(F)
+    U = zeros(N+1, N+1)
+    U[2:N, 2:N] = reshape(u, N-1, N-1)
+    xx = yy = -1:0.0333:1
+    UU = gridinterp(U, xx, yy)
     clf()
-    surf(xxx, yyy, uuu, rstride=1, cstride=1)
+    contour(xx, yy, UU', 10)
+    value = round(U[N÷2 + 1, N÷2 + 1], sigdigits=10)
+    title("u(0,0) = $value")
     xlabel("x")
     ylabel("y")
-    zlabel("u")
-    view(-37.5, 30)
-    value = round(uu[Int(N / 2 + 1), Int(N / 2 + 1)], sigdigits=10)
-    text3D(0.2, 1, 0.022, "u(0,0) = $value")
-    figure(2)
-    clf()
-    contour(xxx, yyy, uuu, 10)
     axis("square")
     return gcf()
 end
