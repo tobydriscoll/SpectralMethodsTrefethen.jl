@@ -1473,8 +1473,8 @@ function p37()
     Nx = 50
     dx = 2A / Nx
     x = @. -A + dx * (1:Nx)
-    entry(k) = k==0 ? -1 / (3 * (dx / A)^2) - 1/6 
-                : -0.5 * (-1)^k / sinpi((dx / A) * k / 2)^2
+    entry(k) = k==0 ? -1 / (3 * (dx / A)^2) - 1/6 :
+                -0.5 * (-1)^k / sinpi((dx / A) * k / 2)^2
     D²x = [ (π / A)^2 * entry(mod(i-j,Nx)) for i in 1:Nx, j in 1:Nx ]
 
     # y variable in [-1,1], Chebyshev:
