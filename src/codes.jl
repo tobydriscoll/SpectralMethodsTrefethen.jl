@@ -88,10 +88,6 @@ function p3g()
         v = @. float(abs(x) ≤ 3)
         subplot(3, 1, plt)
         plot(x, v, ".", markersize=6)
-        # p = zero(xx)
-        # for i in eachindex(x)
-            # @. p += v[i] * sinpi((xx - x[i]) / h) / (π * (xx - x[i]) / h)
-        # end
         BLI(t) = sum(v[i] * sinpi((t - x[i]) / h) / (π * (t - x[i]) / h) for i in eachindex(x)) 
         plot(xx, BLI.(xx), "-")
         axis([-xmax, xmax, -0.25, 1.25])
@@ -107,8 +103,8 @@ function p4()
     N = 24
     h = 2π / N
     x = h * (1:N)
-    column = [0; @. 0.5 * (-1)^(1:N-1) * cot((1:N-1) * h / 2)]
-    D = toeplitz(column, column[[1; N:-1:2]])
+    entry(k) = k==0 ? 0 : 0.5 * (-1)^k * cot(k * h / 2)
+    D = [ entry(mod(i-j,N)) for i in 1:N, j in 1:N ]
 
     # Differentiation of a hat function:
     v = @. max(0, 1 - abs(x - π) / 2)
@@ -312,8 +308,8 @@ function p7()
     for N = 6:2:Nmax
         h = 2π / N
         x = h * (1:N)
-        column = [0; @. 0.5 * (-1)^(1:N-1) * cot((1:N-1) * h / 2)]
-        D = toeplitz(column, column[[1; N:-1:2]])
+        entry(k) = k==0 ? 0 : 0.5 * (-1)^k * cot(k * h / 2)
+        D = [ entry(mod(i-j,N)) for i in 1:N, j in 1:N ]
         v = @. abs(sin(x))^3                     # 3rd deriv in BV
         vʹ = @. 3sin(x) * cos(x) * abs(sin(x))
         j = round(Int, N / 2 - 2)
@@ -751,7 +747,8 @@ function p21()
     N = 42
     h = 2π / N
     x = h * (1:N)
-    D² = toeplitz([-π^2 / (3h^2) - 1 / 6; @. -0.5 * (-1)^(1:N-1) / sin(h * (1:N-1) / 2)^2])
+    entry(k) = k==0 ? -π^2/(3h^2) - 1/6 : -0.5 * (-1)^k / sin(h * k / 2)^2
+    D² = [ entry(mod(i-j,N)) for i in 1:N, j in 1:N ]
     qq = 0:0.2:15
     data = zeros(0, 11)
     for q = qq
@@ -798,35 +795,28 @@ end
 function p23()
     # Set up tensor product Laplacian and compute 4 eigenmodes:
     N = 16
-    D, x = cheb(N)
-    y = x
-    xx = x[2:N]
-    yy = y[2:N]
-    D² = D^2
-    D² = D²[2:N, 2:N]
-    L = -kron(I(N - 1), D²) - kron(D², I(N - 1))                #  Laplacian
-    f = @. exp(20 * (yy - xx' - 1))      # perturbation
-    L = L + diagm(f[:])
-    D, V = eigen(L)
-    ii = sortperm(D)[1:4]
-    D = D[ii]
-    V = V[:, ii]
+    ⊗ = kron
+    D, x = D, y = cheb(N)
+    D² = (D^2)[2:N, 2:N]
+    L = -I(N-1) ⊗ D² - D² ⊗ I(N-1)                #  Laplacian
+    F = [ exp(20 * (y- x - 1)) for x in x[2:N], y in y[2:N] ]   # perturbation
+    # L += diagm(vec(F))
+    λ, V = eigen(L,sortby=real)
+    λ = real(λ[1:4])
+    V = real(V[:, 1:4])
 
     # Reshape them to 2D grid, interpolate to finer grid, and plot:
-    xx = yy = x[end:-1:1]
-    xxx = yyy = -1:0.02:1
-    uu = zeros(N + 1, N + 1)
+    xx = yy = -1:0.02:1
+    U = zeros(N+1, N+1)
     ay, ax = (repeat([0.56 0.04], outer=(2, 1)), repeat([0.1, 0.5], outer=(1, 2)))
     clf()
     for i = 1:4
-        uu[2:N, 2:N] = reshape(V[:, i], N - 1, N - 1)
-        uu = uu / norm(uu[:], Inf)
-        s = Spline2D(xx, yy, reverse(uu, dims=:))
-        uuu = evalgrid(s, xxx, yyy)
+        U[2:N, 2:N] = normalize(reshape(V[:, i], N-1, N-1), Inf)
+        UU = gridinterp(U,xx,yy)
         PyPlot.axes([ax[i], ay[i], 0.38, 0.38])
-        contour(xxx, yyy, uuu, levels=-0.9:0.2:0.9)
+        contour(xx, yy, UU', levels=-0.9:0.2:0.9)
         axis("square")
-        title("eig = $(round(D[i]/(π^2/4),sigdigits=13)) π^2/4")
+        title("eig = $(round(λ[i]/(π^2/4),sigdigits=13)) π^2/4")
     end
     return gcf()
 end
@@ -1092,12 +1082,13 @@ function p28()
     E1 = D[2:N2+1, 2:N2+1]
     E2 = D[2:N2+1, N:-1:N2+2]
 
-    # t = θ coordinate, ranging from 0 to 2*π (M must be even):
+    # t = θ coordinate, ranging from 0 to 2π (M must be even):
     M = 20
     Δt = 2π / M
     t = Δt * (1:M)
-    M2 = Int(M / 2)
-    D²t = toeplitz([-π^2 / (3Δt^2) - 1 / 6; @. 0.5 * (-1)^(2:M) / sin(Δt * (1:M-1) / 2)^2])
+    M2 = M÷2
+    entry(k) = k==0 ? -π^2/(3Δt^2) - 1/6 : -0.5 * (-1)^k / sin(Δt * k / 2)^2
+    D²t = [ entry(mod(i-j,M)) for i in 1:M, j in 1:M ]
 
     # Laplacian in polar coordinates:
     R = diagm(1 ./ r[2:N2+1])
@@ -1106,10 +1097,9 @@ function p28()
 
     # Compute four eigenmodes:
     index = [1, 3, 6, 10]
-    λ, V = eigen(-L)
-    ii = sortperm(abs.(λ))[index]
-    λ = λ[ii]
-    V = V[:, ii]
+    λ, V = eigen(-L,sortby=abs)
+    λ = λ[index]
+    V = V[:, index]
     λ = sqrt.(real(λ / λ[1]))
 
     # Plot eigenmodes with nodal lines underneath:
@@ -1152,7 +1142,8 @@ function p28b()
     Δt = 2π / M
     t = Δt * (1:M)
     M2 = Int(M / 2)
-    D²t = toeplitz([-π^2 / (3Δt^2) - 1 / 6; @. 0.5 * (-1)^(2:M) / sin(Δt * (1:M-1) / 2)^2])
+    entry(k) = k==0 ? -π^2/(3Δt^2) - 1/6 : -0.5 * (-1)^k / sin(Δt * k / 2)^2
+    D²t = [ entry(mod(i-j,M)) for i in 1:M, j in 1:M ]
 
     # Laplacian in polar coordinates:
     R = diagm(1 ./ r[2:N2+1])
@@ -1203,7 +1194,8 @@ function p29()
     Δt = 2π / M
     t = Δt * (1:M)
     M2 = Int(M / 2)
-    D²t = toeplitz([-π^2 / (3Δt^2) - 1 / 6; @. 0.5 * (-1)^(2:M) / sin(Δt * (1:M-1) / 2)^2])
+    entry(k) = k==0 ? -π^2/(3Δt^2) - 1/6 : -0.5 * (-1)^k / sin(Δt * k / 2)^2
+    D²t = [ entry(mod(i-j,M)) for i in 1:M, j in 1:M ]
     R = diagm(1 ./ r[2:N2+1])
     Z = zeros(M2, M2)
     L = kron(D1 + R * E1, I(M)) + kron(D² + R * E2, [Z I(M2); I(M2) Z]) + kron(R^2, D²t)
@@ -1481,8 +1473,9 @@ function p37()
     Nx = 50
     dx = 2A / Nx
     x = @. -A + dx * (1:Nx)
-    D²x = (π / A)^2 * toeplitz([-1 / (3 * (dx / A)^2) - 1 / 6
-        @. 0.5 * (-1) .^ (2:Nx) / sinpi((dx / A) * (1:Nx-1) / 2)^2])
+    entry(k) = k==0 ? -1 / (3 * (dx / A)^2) - 1/6 
+                : -0.5 * (-1)^k / sinpi((dx / A) * k / 2)^2
+    D²x = [ (π / A)^2 * entry(mod(i-j,Nx)) for i in 1:Nx, j in 1:Nx ]
 
     # y variable in [-1,1], Chebyshev:
     Ny = 15
