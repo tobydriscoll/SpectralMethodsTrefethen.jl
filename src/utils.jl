@@ -105,6 +105,21 @@ function polyinterp(x,y)
     end
 end
 
+function gridinterp(V,xx,yy)
+    M,N = size(V) .- 1
+    x = @. cos(π*(0:M)/M)
+    y = @. cos(π*(0:N)/N)
+    Vx = zeros(length(xx), N+1)
+    for j in axes(V,2)
+        Vx[:,j] = polyinterp(x,V[:,j]).(xx)
+    end
+    VV = zeros(length(xx),length(yy))
+    for i in axes(Vx,1)
+        VV[i,:] = polyinterp(y,Vx[i,:]).(yy)
+    end
+    return VV
+end
+
 ##
 ## Stand-ins for native functions in MATLAB.
 ##

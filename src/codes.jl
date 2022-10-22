@@ -503,11 +503,10 @@ function p13()
     u = D² \ f                           # Poisson eq. solved here
     u = [0; u; 0]
     clf()
-    axes([0.1, 0.4, 0.8, 0.5])
     plot(x, u, ".", markersize=6)
     xx = -1:0.01:1
-    uu = polyinterp(x, u).(xx)      # interpolate grid data
-    plot(xx, uu)
+    p = polyinterp(x, u)      # interpolate grid data
+    plot(xx, p.(xx))
     grid(true)
     exact = @. (exp(4xx) - sinh(4) * xx - cosh(4)) / 16
     title("max err = $(round(norm(uu-exact,Inf),sigdigits=4))", fontsize=12)
@@ -531,11 +530,10 @@ function p14()
     end
     u = [0; u; 0]
     clf()
-    PyPlot.axes([0.1, 0.4, 0.8, 0.5])
     plot(x, u, ".", markersize=6)
     xx = -1:0.01:1
-    uu = polyinterp(x, u).(xx)
-    plot(xx, uu), grid(true)
+    p = polyinterp(x, u)
+    plot(xx, p.(xx)), grid(true)
     title("no. steps = $it      u(0) =$(u[Int(N/2+1)])")
     return gcf()
 end
@@ -557,8 +555,8 @@ function p15()
         plot(x, u, ".", markersize=6)
         grid(true)
         xx = -1:0.01:1
-        uu = polyinterp(x, u).(xx)
-        plot(xx, uu)
+        p = polyinterp(x, u)
+        plot(xx, p.(xx))
         axis("off")
         text(-0.4, 0.1, "eig $j = $(λ[j]*4/π^2) π^2/4")
         text(0.7, 0.1, "$(round(4*N/(π*j),sigdigits=2))  ppw")
@@ -570,31 +568,32 @@ end
 function p16()
     # Set up grids and tensor product Laplacian and solve for u:
     N = 24
+    ⊗ = kron
     D, x = cheb(N)
     y = x
-    xx = x[2:N]
-    yy = y[2:N]
-    f = @. 10sin(8xx' * (yy - 1))
+    F = [ 10sin(8x * (y - 1)) for x in x[2:N], y in y[2:N] ]
     D² = D^2
     D² = D²[2:N, 2:N]
-    L = kron(I(N - 1), D²) + kron(D², I(N - 1))                       # Laplacian
+    L = I(N - 1) ⊗ D² + D² ⊗ I(N - 1)                     # Laplacian
     fig1 = figure(1)
     clf()
     spy(L)
-    @elapsed u = L \ f[:]           # solve problem and watch the clock
+    @elapsed u = L \ vec(F)           # solve problem and watch the clock
 
     # Reshape long 1D results onto 2D grid (flipping orientation):
-    uu = zeros(N + 1, N + 1)
-    uu[N:-1:2, N:-1:2] = reshape(u, N - 1, N - 1)
-    value = uu[3N ÷ 4 + 1, 3N ÷ 4 + 1]
+    U = zeros(N+1, N+1)
+    # U[N:-1:2, N:-1:2] = reshape(u, N-1, N-1)
+    U[2:N, 2:N] = reshape(u, N-1, N-1)
+    value = U[N÷4 + 1, N÷4 + 1]
 
     # Interpolate to finer grid and plot:
-    xxx = yyy = -1:0.04:1
-    s = Spline2D(x[end:-1:1], y[end:-1:1], uu, kx=1, ky=1)
-    uuu = s.(xxx, yyy')
+    xx = yy = -1:0.04:1
+    # s = Spline2D(x[end:-1:1], y[end:-1:1], uu, kx=1, ky=1)
+    # uuu = s.(xxx, yyy')
+    uu = evalgrid(U,xx,yy)
     fig2 = figure(2)
     clf()
-    surf(xxx, yyy, uuu', rstride=1, cstride=1)
+    surf(xx, yy, uu', rstride=1, cstride=1)
     xlabel("x")
     ylabel("y")
     zlabel("u")
