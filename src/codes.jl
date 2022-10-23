@@ -1,10 +1,9 @@
 # p1 - convergence of fourth-order finite differences
-function p1()
+function p1(Nvec = @. 2^(3:12))
     # For various N, set up grid in [-π,π] and function u(x):
-    Nvec = @. 2^(3:12)
     clf()
     PyPlot.axes([0.1, 0.4, 0.8, 0.5])
-    for N = Nvec
+    for N in Nvec
         h = 2π / N
         x = @. -π + (1:N) * h
         u = @. exp(sin(x)^2)
@@ -26,10 +25,10 @@ function p1()
 end
 
 # p2 - convergence of periodic spectral method (compare p1.jl)
-function p2()
+function p2(Nvec = 2:2:100)
     # For various N (even), set up grid as before:
     clf()
-    for N = 2:2:100
+    for N in Nvec
         h = 2π / N
         x = [-π + i * h for i = 1:N]
         u = @. exp(sin(x))
@@ -49,9 +48,8 @@ function p2()
 end
 
 # p3 - band-limited interpolation
-function p3()
+function p3(xmax = 10)
     h = 1
-    xmax = 10
     clf()
     x = -xmax:h:xmax                     # computational grid
     xx = -xmax-h/20:h/10:xmax+h/20       # plotting grid
@@ -74,8 +72,7 @@ function p3()
 end
 
 # p3 - Gibbs phenomenon
-function p3g()
-    xmax = 6
+function p3g(xmax = 6)
     clf()
     for (plt,h) in enumerate([1,1/2,1/10])
         x = -xmax:h:xmax                     # computational grid
@@ -92,9 +89,8 @@ function p3g()
 end
 
 # p4 - periodic spectral differentiation
-function p4()
+function p4(N = 24)
     # Set up grid and differentiation matrix:
-    N = 24
     h = 2π / N
     x = h * (1:N)
     entry(k) = k==0 ? 0 : 0.5 * (-1)^k * cot(k * h / 2)
@@ -124,10 +120,9 @@ function p4()
 end
 
 # p5 - repetition of p4 via FFT
-function p5()
+function p5(N = 24)
     #        For complex v, delete "real" commands.
     # Differentiation of a hat function:
-    N = 24
     h = 2π / N
     x = h * (1:N)
     v = @. max(0, 1 - abs(x - π) / 2)
@@ -159,9 +154,9 @@ function p5()
 end
 
 # real fft version of p5
-function p5r()
+function p5r(N = 24)
     # Differentiation of a hat function:
-    N = 24;  h = 2π / N
+    h = 2π / N
     x = h * (1:N)
     v = @. max(0, 1 - abs(x - π) / 2)
     v̂ = rfft(v)
@@ -279,19 +274,16 @@ function p6u()
 end
 
 # p7 - accuracy of periodic spectral differentiation
-function p7()
+function p7(allN = 6:2:50)
     # Compute derivatives for various values of N:
-    Nmax = 50
-    allN = 6:2:Nmax
     E = zeros(4, length(allN))
-    for N = 6:2:Nmax
+    for (j,N) in enumerate(allN)
         h = 2π / N
         x = h * (1:N)
         entry(k) = k==0 ? 0 : 0.5 * (-1)^k * cot(k * h / 2)
         D = [ entry(mod(i-j,N)) for i in 1:N, j in 1:N ]
         v = @. abs(sin(x))^3                     # 3rd deriv in BV
         vʹ = @. 3sin(x) * cos(x) * abs(sin(x))
-        j =  div(N,2) - 2
         E[1, j] = norm(D * v - vʹ, Inf)
         v = @. exp(-sin(x / 2)^(-2))               # C-infinity
         vʹ = @. 0.5v * sin(x) / sin(x / 2)^4
@@ -307,6 +299,7 @@ function p7()
     # Plot results:
     titles = [L"|\sin(x)|^3", L"\exp(-\sin^{-2}(x/2))", L"1/(1+\sin^2(x/2))", L"\sin(10x)"]
     clf()
+    Nmax = maximum(allN)
     for iplot in 1:4
         subplot(2, 2, iplot)
         semilogy(allN, E[iplot, :], ".-", markersize=6)
@@ -320,9 +313,8 @@ function p7()
 end
 
 # p8 - eigenvalues of harmonic oscillator -u"+x^2 u on R
-function p8()
+function p8( N = 6:6:36)
     L = 8                             # domain is [-L L], periodic
-    N = 6:6:36
     λ = zeros(4,0)
     for N in N
         h = 2π / N
@@ -336,11 +328,10 @@ function p8()
 end
 
 # p9 - polynomial interpolation in equispaced and Chebyshev pts
-function p9()
-    N = 16
+function p9(N = 16)
     xx = -1.01:0.005:1.01
     clf()
-    for i = 1:2
+    for i in 1:2
         i == 1 && ((s, x) = ("equispaced points", -1 .+ 2 * (0:N) / N))
         i == 2 && ((s, x) = ("Chebyshev points", cospi.((0:N) / N)))
         subplot(2, 2, i)
@@ -359,11 +350,10 @@ function p9()
 end
 
 # p10 - polynomials and corresponding equipotential curves
-function p10()
-    N = 16
+function p10(N = 16)
     clf()
     xx = -1.01:0.005:1.01
-    for i = 1:2
+    for i in 1:2
         i == 1 && ((s, x) = ("equispaced points", -1 .+ 2 * (0:N) / N))
         i == 2 && ((s, x) = ("Chebyshev points", cospi.((0:N) / N)))
         p = fromroots(x)
@@ -395,11 +385,11 @@ function p10()
 end
 
 # p11 - Chebyshev differentation of a smooth function
-function p11()
+function p11(allN = [10, 20])
     xx = -1:0.01:1
     uu = @. exp(xx) * sin(5xx)
     clf()
-    for (k,N) in enumerate([10, 20])
+    for (k,N) in enumerate(allN)
         D, x = cheb(N)
         u = @. exp(x) * sin(5x)
         subplot(2, 2, 2k-1)
@@ -420,9 +410,8 @@ function p11()
 end
 
 # p12 - accuracy of Chebyshev spectral differentiation
-function p12()
+function p12(Nmax = 50)
     # Compute derivatives for various values of N:
-    Nmax = 50
     funs = [
         ( x -> abs(x)^3, x -> 3x * abs(x), L"|x|^3" ),
         ( x -> exp(-x^(-2)), x -> 2exp(-x^(-2))/x^3, L"\exp(-x^2)" ),
@@ -459,8 +448,7 @@ function p12()
 end
 
 # p13 - solve linear BVP u_xx = exp(4x), u(-1)=u(1)=0
-function p13()
-    N = 16
+function p13(N = 16)
     D, x = cheb(N)
     D² = (D^2)[2:N, 2:N]                   # boundary conditions
     f = @. exp(4x[2:N])
@@ -478,8 +466,7 @@ function p13()
 end
 
 # p14 - solve nonlinear BVP u_xx = exp(u), u(-1)=u(1)=0
-function p14()
-    N = 16
+function p14(N = 16)
     D, x = cheb(N)
     D² = (D^2)[2:N, 2:N]
     u = zeros(N-1)
@@ -502,8 +489,7 @@ function p14()
 end
 
 # p15 - solve eigenvalue BVP u_xx = λ*u, u(-1)=u(1)=0
-function p15()
-    N = 36
+function p15(N = 36)
     D, x = cheb(N)
     D² = (D^2)[2:N, 2:N]
     λ, V = eigen(D²,sortby=(-)∘real)
@@ -524,9 +510,8 @@ function p15()
 end
 
 # p16 - Poisson eq. on [-1,1]x[-1,1] with u=0 on boundary
-function p16()
+function p16(N = 24)
     # Set up grids and tensor product Laplacian and solve for u:
-    N = 24
     ⊗ = kron
     D, x = D, y = cheb(N)
     F = [ 10sin(8x * (y - 1)) for x in x[2:N], y in y[2:N] ]
@@ -556,9 +541,8 @@ function p16()
 end
 
 # p17 - Helmholtz eq. u_xx + u_yy + (k^2)u = f
-function p17()
+function p17(N = 24)
     # Set up spectral grid and tensor product Helmholtz operator:
-    N = 24
     ⊗ = kron
     D, x = D, y = cheb(N)
     F = [exp(-10 * ((y - 1)^2 + (x - 0.5)^2)) for x in x[2:N], y in y[2:N]]
@@ -581,11 +565,11 @@ function p17()
 end
 
 # p18 - Chebyshev differentiation via FFT (compare p11.jl)
-function p18()
+function p18(N = [10, 20])
     xx = -1:0.01:1
     ff = @. exp(xx) * sin(5xx)
     clf()
-    for N = [10 20]
+    for N in N
         _, x = cheb(N)
         f = @. exp(x) * sin(5x)
         PyPlot.axes([0.15, 0.66 - 0.4 * (N == 20), 0.31, 0.28])
@@ -603,9 +587,8 @@ function p18()
 end
 
 # p19 - 2nd-order wave eq. on Chebyshev grid (compare p6.jl)
-function p19()
+function p19(N = 80)
     # Time-stepping by leap frog formula:
-    N = 80
     _, x = cheb(N)
     Δt = 8 / N^2
     v = @. exp(-200x^2)
@@ -644,9 +627,8 @@ function p19()
 end
 
 # p20 - 2nd-order wave eq. in 2D via FFT (compare p19.m)
-function p20()
+function p20(N = 24)
     # Grid and initial data:
-    N = 24
     _, x = cheb(N)
     y = x
     Δt = 6 / N^2
@@ -700,8 +682,7 @@ function p20()
 end
 
 # p21 - eigenvalues of Mathieu operator -u_xx + 2qcos(2x)u
-function p21()
-    N = 42
+function p21(N = 42)
     h = 2π / N
     x = h * (1:N)
     entry(k) = k==0 ? -π^2/(3h^2) - 1/6 : -0.5 * (-1)^k / sin(h * k / 2)^2
@@ -724,9 +705,9 @@ function p21()
 end
 
 # p22 - 5th eigenvector of Airy equation u_xx = λ*x*u
-function p22()
+function p22(N = 12:12:48)
     clf()
-    for N = 12:12:48
+    for N in N
         D, x = cheb(N)
         D² = D^2
         D² = D²[2:N, 2:N]
@@ -747,9 +728,8 @@ function p22()
 end
 
 # p23 - eigenvalues of perturbed Laplacian on [-1,1]x[-1,1]
-function p23()
+function p23(N = 16)
     # Set up tensor product Laplacian and compute 4 eigenmodes:
-    N = 16
     ⊗ = kron
     D, x = D, y = cheb(N)
     D² = (D^2)[2:N, 2:N]
@@ -777,9 +757,8 @@ function p23()
 end
 
 # p23a - eigenvalues of UNperturbed Laplacian on [-1,1]x[-1,1]
-function p23a()
+function p23a(N = 16)
     # Set up tensor product Laplacian and compute 4 eigenmodes:
-    N = 16
     D, x = cheb(N)
     y = x
     xx = x[2:N]
@@ -814,9 +793,8 @@ function p23a()
 end
 
 # p24 - pseudospectra of Davies's complex harmonic oscillator
-function p24()
+function p24(N = 70)
     # Eigenvalues:
-    N = 70
     D, x = cheb(N)
     x = x[2:N]
     L = 6
@@ -840,9 +818,8 @@ function p24()
 end
 
 # p24 - pseudospectra of Davies's complex harmonic oscillator
-function p24fine()
+function p24fine(N = 70)
     # Eigenvalues:
-    N = 70
     D, x = cheb(N)
     x = x[2:N]
     L = 6
@@ -940,8 +917,7 @@ function p25()
 end
 
 # p26 - eigenvalues of 2nd-order Chebyshev diff. matrix
-function p26()
-    N = 60
+function p26(N = 60)
     D, x = cheb(N)
     D² = D^2
     D² = D²[2:N, 2:N]
@@ -977,9 +953,8 @@ function p26()
 end
 
 # p27 - Solve KdV eq. u_t + uu_x + u_xxx = 0 on [-π,π] by
-function p27()
+function p27(N = 256)
     # Set up grid and two-soliton initial data:
-    N = 256
     Δt = 0.4 / N^2
     x = (2π / N) * (-N/2:N/2-1)
     A = 25
@@ -1026,9 +1001,10 @@ function p27()
 end
 
 # p28 - eigenmodes of Laplacian on the disk (compare p22.jl)
-function p28()
+function p28(M = 20, N = 25)
+    @assert(iseven(M),"input M must be even")
+    @assert(isodd(N),"input N must be odd")
     # r coordinate, ranging from -1 to 1 (N must be odd):
-    N = 25
     N2 = Int((N - 1) / 2)
     D, r = cheb(N)
     D² = D^2
@@ -1038,7 +1014,6 @@ function p28()
     E2 = D[2:N2+1, N:-1:N2+2]
 
     # t = θ coordinate, ranging from 0 to 2π (M must be even):
-    M = 20
     Δt = 2π / M
     t = Δt * (1:M)
     M2 = M÷2
@@ -1081,9 +1056,10 @@ function p28()
 end
 
 # p28b - eigenmodes of Laplacian on the disk
-function p28b()
+function p28b(M = 20, N = 25)
+    @assert(iseven(M),"input M must be even")
+    @assert(isodd(N),"input N must be odd")
     # r coordinate, ranging from -1 to 1 (N must be odd)
-    N = 25
     N2 = Int((N - 1) / 2)
     D, r = cheb(N)
     D² = D^2
@@ -1093,7 +1069,6 @@ function p28b()
     E2 = D[2:N2+1, N:-1:N2+2]
 
     # t = θ coordinate, ranging from 0 to 2*π (M must be even):
-    M = 20
     Δt = 2π / M
     t = Δt * (1:M)
     M2 = Int(M / 2)
@@ -1135,9 +1110,9 @@ function p28b()
 end
 
 # p29 - solve Poisson equation on the unit disk
-function p29()
+function p29(N = 25)
+    @assert(isodd(N),"input N must be odd")
     # Laplacian in polar coordinates:
-    N = 25
     N2 = div(N-1,2)
     D, r = cheb(N)
     D² = D^2
@@ -1230,8 +1205,7 @@ p30b() = _p30(clencurt)
 p30c() = _p30(gauss)
 
 # p31 - gamma function via complex integral, trapezoid rule
-function p31()
-    N = 70
+function p31(N = 70)
     θ = @. -π + (2π / N) * (0.5:N-0.5)
     c = -11                     # center of circle of integration
     r = 16                      # radius of circle of integration
@@ -1257,8 +1231,7 @@ function p31()
 end
 
 # p32 - solve u_xx = exp(4x), u(-1)=0, u(1)=1 (compare p13.jl)
-function p32()
-    N = 16
+function p32(N = 16)
     D, x = cheb(N)
     D² = D^2
     D² = D²[2:N, 2:N]                   # boundary conditions
@@ -1277,8 +1250,7 @@ function p32()
 end
 
 # p33 - solve linear BVP u_xx = exp(4x), u'(-1)=u(1)=0
-function p33()
-    N = 16
+function p33(N = 16)
     D, x = cheb(N)
     D² = D^2
     D²[N+1, :] = D[N+1, :]            # Neumann condition at x = -1
@@ -1299,9 +1271,8 @@ function p33()
 end
 
 # p34 - Allen-Cahn eq. u_t = eps*u_xx+u-u^3, u(-1)=-1, u(1)=1
-function p34()
+function p34(N = 20)
     # Differentiation matrix and initial data:
-    N = 20
     D, x = cheb(N)
     D² = D^2     # use full-size matrix
     D²[[1, N + 1], :] .= 0                     # for convenience
@@ -1343,9 +1314,8 @@ function p34()
 end
 
 # p35 - Allen-Cahn eq. as in p34.m, but with boundary condition
-function p35()
+function p35(N = 20)
     # Differentiation matrix and initial data:
-    N = 20
     D, x = cheb(N)
     D² = D^2     # use full-size matrix
     eps = 0.01
@@ -1388,9 +1358,8 @@ function p35()
 end
 
 # p36 - Laplace eq. on [-1,1]x[-1,1] with nonzero BCs
-function p36()
+function p36(N = 24)
     # Set up grid and 2D Laplacian, boundary points included:
-    N = 24
     D, x = cheb(N)
     y = x
     xx = repeat(x', outer=(N + 1, 1))
@@ -1422,10 +1391,9 @@ function p36()
 end
 
 # p37 - 2D "wave tank" with Neumann BCs for |y|=1
-function p37()
+function p37(Nx = 50, Ny = 15)
     # x variable in [-A,A], Fourier:
     A = 3
-    Nx = 50
     dx = 2A / Nx
     x = @. -A + dx * (1:Nx)
     entry(k) = k==0 ? -1 / (3 * (dx / A)^2) - 1/6 :
@@ -1433,7 +1401,6 @@ function p37()
     D²x = [ (π / A)^2 * entry(mod(i-j,Nx)) for i in 1:Nx, j in 1:Nx ]
 
     # y variable in [-1,1], Chebyshev:
-    Ny = 15
     Dy, y = cheb(Ny)
     D²y = Dy^2
     BC = -Dy[[1, Ny + 1], [1, Ny + 1]] \ Dy[[1, Ny + 1], 2:Ny]
@@ -1468,9 +1435,8 @@ function p37()
 end
 
 # p38 - solve u_xxxx = exp(x), u(-1)=u(1)=u'(-1)=u'(1)=0
-function p38()
+function p38(N = 15)
     # Construct discrete biharmonic operator:
-    N = 15
     D, x = cheb(N)
     S = diagm([0; 1 ./ (1 .- x[2:N] .^ 2); 0])
     D4 = (diagm(1 .- x .^ 2) * D^4 - 8diagm(x) * D^3 - 12D^2) * S
@@ -1499,9 +1465,8 @@ function p38()
 end
 
 # p39 - eigenmodes of biharmonic on a square with clamped BCs
-function p39()
+function p39(N = 17)
     # Construct spectral approximation to biharmonic operator:
-    N = 17
     D, x = cheb(N)
     D² = D^2
     D² = D²[2:N, 2:N]
@@ -1537,8 +1502,7 @@ function p39()
 end
 
 # p40 - eigenvalues of Orr-Sommerfeld operator (compare p38.jl)
-function p40()
-    R = 5772
+function p40(R = 5772)
     clf()
     for N = 40:20:100
         # 2nd- and 4th-order differentiation matrices:
