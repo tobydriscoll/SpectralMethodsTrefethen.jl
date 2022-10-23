@@ -10,6 +10,7 @@ using Dierckx
 using FFTW
 using Polynomials
 using LaTeXStrings
+using PyFormattedStrings
 using SpecialFunctions
 using PrettyTables
 import Base:view

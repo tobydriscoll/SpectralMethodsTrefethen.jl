@@ -126,8 +126,8 @@ function p4()
     axis([0, 2π, 0, 3]), grid(true)
     subplot(2, 2, 4), plot(x, D * v, ".-", markersize=6)
     axis([0, 2π, -2, 2]), grid(true)
-    error = round(norm(D * v - vʹ, Inf), sigdigits=5)
-    text(2.2, 1.4, "max error = $error", fontsize=8)
+    error = norm(D * v - vʹ, Inf)
+    text(2.2, 1.4, f"max error = {error:.5g}", fontsize=8)
     return gcf()
 end
 
@@ -146,12 +146,10 @@ function p5()
     subplot(2, 2, 1)
     plot(x, v, ".-", markersize=6)
     axis([0, 2π, -0.5, 1.5])
-    grid(true)
-    title("function")
+    grid(true); title("function")
     subplot(2, 2, 2), plot(x, w, ".-", markersize=6)
     axis([0, 2π, -1, 1])
-    grid(true)
-    title("spectral derivative")
+    grid(true); title("spectral derivative")
 
     # Differentiation of exp(sin(x)):
     v = @. exp(sin(x))
@@ -163,8 +161,8 @@ function p5()
     axis([0, 2π, 0, 3]), grid(true)
     subplot(2, 2, 4), plot(x, w, ".-", markersize=6)
     axis([0, 2π, -2, 2]), grid(true)
-    error = round(norm(w - vʹ, Inf), sigdigits=4)
-    text(2.2, 1.4, "max error = $error", fontsize=8)
+    error = norm(w - vʹ, Inf)
+    text(2.2, 1.4, f"max error = {error:.5g}", fontsize=8)
     return gcf()
 end
 
@@ -199,8 +197,8 @@ function p5r()
     axis([0, 2π, 0, 3]), grid(true)
     subplot(2, 2, 4), plot(x, w, ".-", markersize=6)
     axis([0, 2π, -2, 2]), grid(true)
-    error = round(norm(w - vʹ, Inf), sigdigits=4)
-    text(2.2, 1.4, "max error = $error", fontsize=8)
+    error = norm(w - vʹ, Inf)
+    text(2.2, 1.4, f"max error = {error:.5g}", fontsize=8)
     return gcf()
 end
 
@@ -312,7 +310,7 @@ function p7()
         D = [ entry(mod(i-j,N)) for i in 1:N, j in 1:N ]
         v = @. abs(sin(x))^3                     # 3rd deriv in BV
         vʹ = @. 3sin(x) * cos(x) * abs(sin(x))
-        j = round(Int, N / 2 - 2)
+        j =  div(N,2) - 2
         E[1, j] = norm(D * v - vʹ, Inf)
         v = @. exp(-sin(x / 2)^(-2))               # C-infinity
         vʹ = @. 0.5v * sin(x) / sin(x / 2)^4
@@ -375,8 +373,8 @@ function p9()
         plot(xx, pp)
         axis([-1.1, 1.1, -1, 1.5])
         title(s)
-        error = round(norm(uu - pp, Inf), sigdigits=5)
-        text(-0.5, -0.5, "max error = $error", fontsize=8)
+        error = norm(uu - pp, Inf)
+        text(-0.5, -0.5, f"max error = {error:.5g}", fontsize=8)
     end
     return gcf()
 end
@@ -399,8 +397,7 @@ function p10()
         plot(xx, pp)
         grid(true)
         (i==1) && xticks(-1:0.5:1,[])
-        xticks(-1:0.5:1)
-        title(s)
+        xticks(-1:0.5:1); title(s)
 
         # Plot equipotential curves:
         subplot(2, 2, 2i)
@@ -501,11 +498,11 @@ function p13()
     clf()
     plot(x, u, ".", markersize=6)
     xx = -1:0.01:1
-    p = polyinterp(x, u)      # interpolate grid data
-    plot(xx, p.(xx))
+    uu = polyinterp(x, u).(xx)      # interpolate grid data
+    plot(xx, uu)
     grid(true)
     exact = @. (exp(4xx) - sinh(4) * xx - cosh(4)) / 16
-    title("max err = $(round(norm(uu-exact,Inf),sigdigits=4))", fontsize=12)
+    title(f"max err = {norm(uu-exact,Inf):.4g}", fontsize=12)
     return gcf()
 end
 
@@ -530,7 +527,7 @@ function p14()
     xx = -1:0.01:1
     p = polyinterp(x, u)
     plot(xx, p.(xx)), grid(true)
-    title("no. steps = $it      u(0) =$(u[Int(N/2+1)])")
+    title("no. steps = $it      u(0) = $(u[N÷2+1])")
     return gcf()
 end
 
@@ -555,7 +552,7 @@ function p15()
         plot(xx, p.(xx))
         axis("off")
         text(-0.4, 0.1, "eig $j = $(λ[j]*4/π^2) π^2/4")
-        text(0.7, 0.1, "$(round(4*N/(π*j),sigdigits=2))  ppw")
+        text(-0.9, 0.1, f"{4*N/(π*j):.2g} ppw")
     end
     return gcf()
 end
@@ -570,7 +567,7 @@ function p16()
     F = [ 10sin(8x * (y - 1)) for x in x[2:N], y in y[2:N] ]
     D² = D^2
     D² = D²[2:N, 2:N]
-    L = I(N - 1) ⊗ D² + D² ⊗ I(N - 1)                     # Laplacian
+    L = I(N-1) ⊗ D² + D² ⊗ I(N-1)                     # Laplacian
     fig1 = figure(1)
     clf()
     spy(L)
@@ -587,11 +584,10 @@ function p16()
     fig2 = figure(2)
     clf()
     surf(xx, yy, UU', rstride=1, cstride=1)
-    xlabel("x")
-    ylabel("y")
-    zlabel("u")
+    xlabel("x"); ylabel("y"); zlabel("u")
     view(-37.5, 30)
-    text3D(0.4, -0.3, -0.3, "\$u(2^{-1/2},2^{-1/2})\$ = $(round(value,sigdigits=11))", fontsize=9)
+    val = f"{value:.11g}"
+    text3D(0.4, -0.3, -0.3, "\$u(2^{-1/2},2^{-1/2})\$ = "*val, fontsize=9)
     return [fig1,fig2]
 end
 
@@ -615,10 +611,9 @@ function p17()
     UU = gridinterp(U, xx, yy)
     clf()
     contour(xx, yy, UU', 10)
-    value = round(U[N÷2 + 1, N÷2 + 1], sigdigits=10)
-    title("u(0,0) = $value")
-    xlabel("x")
-    ylabel("y")
+    value = U[N÷2 + 1, N÷2 + 1]
+    title(f"u(0,0) = {value:.11f}")
+    xlabel("x"); ylabel("y")
     axis("square")
     return gcf()
 end
@@ -708,13 +703,13 @@ function p20()
             subplot(2, 2, i, projection="3d")
             xxx = yyy = -1:1/16:1
             s = Spline2D(xx, yy, reverse(vv, dims=:))
-            vvv = evalgrid(s, xxx, yyy)
+            vvv = @. s(xxx, yyy')
             surf(xxx, yyy, vvv)
             xlim(-1, 1)
             ylim(-1, 1)
             zlim(-0.15, 1)
             view(-37.5, 30)
-            title("t = $(round(t,sigdigits=5))")
+            text3D(-1.0, 0.5, 1.0, f"t = {t:.3f}")
         end
         uxx = zeros(N + 1, N + 1)
         uyy = zeros(N + 1, N + 1)
@@ -775,18 +770,16 @@ function p22()
         D² = D²[2:N, 2:N]
         λ, V = eigen(D², diagm(x[2:N]))      # generalized ev problem
         ii = findall(λ .> 0)
-        V = V[:, ii]
-        λ = λ[ii]
-        ii = sortperm(λ)[5]
-        λ = λ[ii]
-        v = [0; V[:, ii]; 0]
+        λ = λ[ii[5]]
+        v = [0; V[:, ii[5]]; 0]
         v = v / v[Int(N / 2 + 1)] * airyai(0)
         xx = -1:0.01:1
         vv = polyinterp(x, v).(xx)
         subplot(2, 2, N ÷ 12)
         plot(xx, vv)
-        grid(true)
-        title("N = $N     eig = $(round(λ,sigdigits=13))")
+        grid(true); xticks(-1:1,[])
+        ylim(-0.8,0.8); yticks(-1:.5:1,[])
+        title(f"N = {N}     λ = {λ:.14g}",fontsize=9)
     end
     return gcf()
 end
@@ -816,7 +809,7 @@ function p23()
         PyPlot.axes([ax[i], ay[i], 0.38, 0.38])
         contour(xx, yy, UU', levels=-0.9:0.2:0.9)
         axis("square")
-        title("eig = $(round(λ[i]/(π^2/4),sigdigits=13)) π^2/4")
+        title(f"λ = {λ[i]/(π^2/4):#.13g} π^2/4",fontsize=9)
     end
     return gcf()
 end
@@ -853,7 +846,7 @@ function p23a()
         PyPlot.axes([ax[i], ay[i], 0.38, 0.38])
         contour(xxx, yyy, uuu, levels=-0.9:0.2:0.9)
         axis("square")
-        title("eig = $(round(D[i]/(π^2/4),sigdigits=13)) π^2/4")
+        title(f"λ = {D[i]/(π^2/4):#.13g} π^2/4",fontsize=9)
     end
     return gcf()
 end
@@ -1000,7 +993,7 @@ function p26()
     PyPlot.axes([0.1, 0.62, 0.8, 0.3])
     loglog(-e, ".", markersize=4)
     ylabel("eigenvalue")
-    title("N = $N       max |λ| = $(round(maximum(-e)/N^4,sigdigits=5)) \$N^4\$")
+    title(f"N = {N}       max |λ| = {maximum(-e)/N^4:.6f}"*" \$N^4\$")
     semilogy(2N / π * [1, 1], [1, 1e6], "--r")
     text(2.1N / π, 24, "2π / N", fontsize=12)
 
@@ -1120,7 +1113,7 @@ function p28()
         surf(xx, yy, u)
         contour3D(xx, yy, u .- 1, levels=[-1])
         plot3D(real(z), imag(z), -abs.(z))
-        title("Mode $(index[i]):  λ = $(round(λ[i],sigdigits=11))", fontsize=9)
+        title(f"Mode {index[i]}:  λ = {λ[i]:.10f}", fontsize=9)
     end
     return gcf()
 end
@@ -1174,7 +1167,7 @@ function p28b()
         axis("off")
         axis("equal")
         contour(xx, yy, u, levels=[0])
-        title("$(round(λ[i],sigdigits=5))", fontsize=8)
+        title(f"{λ[i]:.4f}", fontsize=8)
     end
     return gcf()
 end
@@ -1183,7 +1176,7 @@ end
 function p29()
     # Laplacian in polar coordinates:
     N = 25
-    N2 = Int((N - 1) / 2)
+    N2 = div(N-1,2)
     D, r = cheb(N)
     D² = D^2
     D1 = D²[2:N2+1, 2:N2+1]
@@ -1317,7 +1310,7 @@ function p32()
     plot(xx, uu)
     grid(true)
     exact = @. (exp(4xx) - sinh(4) * xx - cosh(4)) / 16 + (xx + 1) / 2
-    title("max err = $(round(norm(uu-exact,Inf),sigdigits=4))", fontsize=12)
+    title(f"max err = {norm(uu-exact,Inf):.4g}", fontsize=12)
     return gcf()
 end
 
@@ -1339,7 +1332,7 @@ function p33()
     plot(xx, uu)
     grid(true)
     exact = @. (exp(4xx) - 4exp(-4) * (xx - 1) - exp(4)) / 16
-    title("max err = $(round(norm(uu-exact,Inf),sigdigits=5))", fontsize=12)
+    title(f"max err = {norm(uu-exact,Inf):.4g}", fontsize=12)
     return gcf()
 end
 
@@ -1462,7 +1455,7 @@ function p36()
     zlim(-0.2, 1)
     view(-20, 45)
     umid = uu[Int(N / 2)+1, Int(N / 2)+1]
-    text3D(0, 0.8, 0.4, "u(0,0) = $(round(umid,sigdigits=9))")
+    text3D(0, 0.8, 0.4, f"u(0,0) = {umid:.10f}")
     return gcf()
 end
 
@@ -1501,7 +1494,7 @@ function p37()
             xlim(-A, A)
             ylim(-1, 1)
             zlim(-0.15, 1)
-            text3D(-2.5, 1, 0.5, "t = $(round(t))", fontsize=18)
+            text3D(-2.5, 1, 0.5, f"t = {t:.1f}", fontsize=14)
             zticks([])
         end
         vvnew = 2vv - vvold + Δt^2 * (vv * D²x + D²y * vv)
@@ -1539,7 +1532,7 @@ function p38()
     V = xx .^ (0:3)'
     c = A \ exp.([-1, -1, 1, 1])
     exact = exp.(xx) - V * c
-    title("max err = $(round(norm(uu-exact,Inf),sigdigits=5))", fontsize=12)
+    title(f"max err = {norm(uu-exact,Inf):.4g}", fontsize=12)
     return gcf()
 end
 
@@ -1576,7 +1569,7 @@ function p39()
         axis("square")
         axis(1.25 * [-1, 1, -1, 1])
         axis("off")
-        text(-0.3, 1.15, "$(round(λ[i],sigdigits=5))", fontsize=7)
+        text(-0.6, 1.15, f"{λ[i]:.4f}", fontsize=7)
     end
     return gcf()
 end
@@ -1604,7 +1597,7 @@ function p40()
         grid(true)
         axis("square")
         axis([-0.8, 0.2, -1, 0])
-        title("N = $N    \$\\lambda_{max}\$ = $(round(maximum(real(ee)),sigdigits=7))")
+        title(f"N = {N}    "*"\$\\lambda_{max}\$ = "*f"{maximum(real(ee)):.7g}",fontsize=9)
     end
     return gcf()
 end
