@@ -1,6 +1,45 @@
 ## Analogs of functions from the book.
 ##
 """
+    polyinterp(x, y)
+
+Create a callable function that uses the barycentric formula to evaluates the polynomial interpolating the (x,y) points given in vectors `x` and `y`.
+"""
+function polyinterp(x,y)
+    C = 4/(maximum(x) - minimum(x))
+    weight(i) = 1 / prod(C*(x[i]-x[j]) for j in eachindex(x) if j != i) 
+    w = weight.(eachindex(x))
+    return function(t)
+        denom = numer = 0
+        for i in eachindex(x)
+            if t==x[i]
+                return y[i]
+            else
+                s = w[i] / (t-x[i])
+                denom += s 
+                numer = muladd(y[i],s,numer)
+            end
+        end
+        return numer / denom
+    end
+end
+
+function gridinterp(V,xx,yy)
+    M,N = size(V) .- 1
+    x = @. cos(π*(0:M)/M)
+    y = @. cos(π*(0:N)/N)
+    Vx = zeros(length(xx), N+1)
+    for j in axes(V,2)
+        Vx[:,j] = polyinterp(x,V[:,j]).(xx)
+    end
+    VV = zeros(length(xx),length(yy))
+    for i in axes(Vx,1)
+        VV[i,:] = polyinterp(y,Vx[i,:]).(yy)
+    end
+    return VV
+end
+
+"""
     cheb(N)
 
 Chebyshev differentiation matrix and grid.
