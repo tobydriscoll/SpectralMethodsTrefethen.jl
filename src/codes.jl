@@ -18,9 +18,7 @@ function p1()
         error = norm(D * u - uprime, Inf)
         loglog(N, error, "k.", markersize=6)
     end
-    grid(true)
-    xlabel("N")
-    ylabel("error")
+    xlabel("N"); ylabel("error"); grid(true)
     title("Convergence of fourth-order finite differences")
     loglog(Nvec, 1.0 ./ Nvec .^ 4, "--")
     text(105, 5e-8, L"N^{-4}", fontsize=14)
@@ -45,9 +43,7 @@ function p2()
         error = norm(D * u - uprime, Inf)
         loglog(N, error, "k.", markersize=6)
     end
-    grid(true)
-    xlabel("N")
-    ylabel("error")
+    xlabel("N"); ylabel("error"); grid(true)
     title("Convergence of spectral differentiation")
     return gcf()
 end
@@ -72,8 +68,7 @@ function p3()
         end
         plot(xx, p, "-")
         axis([-xmax, xmax, -0.5, 1.5])
-        xticks(1:0)
-        yticks(0:1)
+        xticks(1:0); yticks(0:1)
     end
     return gcf()
 end
@@ -88,11 +83,10 @@ function p3g()
         v = @. float(abs(x) ≤ 3)
         subplot(3, 1, plt)
         plot(x, v, ".", markersize=6)
-        BLI(t) = sum(v[i] * sinpi((t - x[i]) / h) / (π * (t - x[i]) / h) for i in eachindex(x)) 
+        BLI(t) = sum(v[i] * sinc((t - x[i]) / h) for i in eachindex(x)) 
         plot(xx, BLI.(xx), "-")
         axis([-xmax, xmax, -0.25, 1.25])
-        xticks(1:0)
-        yticks(0:1)
+        xticks(1:0); yticks(0:1)
     end
     return gcf()
 end
@@ -111,12 +105,10 @@ function p4()
     clf()
     subplot(2, 2, 1)
     plot(x, v, ".-", markersize=6)
-    axis([0, 2π, -0.5, 1.5])
-    grid(true)
+    axis([0, 2π, -0.5, 1.5]); grid(true)
     title("function")
     subplot(2, 2, 2), plot(x, D * v, ".-", markersize=6)
-    axis([0, 2π, -1, 1])
-    grid(true)
+    axis([0, 2π, -1, 1]); grid(true)
     title("spectral derivative")
 
     # Differentiation of exp(sin(x)):
@@ -166,11 +158,10 @@ function p5()
     return gcf()
 end
 
+# real fft version of p5
 function p5r()
-    #        For complex v, delete "real" commands.
     # Differentiation of a hat function:
-    N = 24
-    h = 2π / N
+    N = 24;  h = 2π / N
     x = h * (1:N)
     v = @. max(0, 1 - abs(x - π) / 2)
     v̂ = rfft(v)
@@ -179,12 +170,10 @@ function p5r()
     clf()
     subplot(2, 2, 1)
     plot(x, v, ".-", markersize=6)
-    axis([0, 2π, -0.5, 1.5])
-    grid(true)
+    axis([0, 2π, -0.5, 1.5]);  grid(true)
     title("function")
     subplot(2, 2, 2), plot(x, w, ".-", markersize=6)
-    axis([0, 2π, -1, 1])
-    grid(true)
+    axis([0, 2π, -1, 1]);  grid(true)
     title("spectral derivative")
 
     # Differentiation of exp(sin(x)):
@@ -203,47 +192,39 @@ function p5r()
 end
 
 # p6 - variable coefficient wave equation
-function p6()
+#  use ⍺ = 1.9 to see instability
+function p6(⍺ = 1.5)
     # Grid, variable coefficient, and initial data:
-    N = 128
-    h = 2π / N
+    N = 128;  h = 2π / N
     x = h * (1:N)
-    t = 0
-    Δt = h / 4
+    t = 0;  Δt = ⍺ / N
     c = @. 0.2 + sin(x - 1)^2
     v = @. exp(-100 * (x - 1) .^ 2)
     vold = @. exp(-100 * (x - 0.2Δt - 1) .^ 2)
 
     # Time-stepping by leap frog formula:
     tmax = 8
-    tplot = 0.15
-    clf()
-    plotgap = round(tplot / Δt)
-    Δt = tplot / plotgap
-    nplots = round(Int, tmax / tplot)
-    data = [v zeros(N, nplots)]
-    tdata = [t]
-    for i in 1:nplots
-        for n in 1:plotgap
-            t = t + Δt
-            v̂ = rfft(v)
-            ŵ = 1im * [0:N/2-1; 0] .* v̂
-            w = irfft(ŵ,N)
-            vnew = vold - 2Δt * c .* w
-            vold = v
-            v = vnew
+    nsteps = ceil(Int, tmax / Δt)
+    Δt = tmax / nsteps
+    V = [v fill(NaN, N, nsteps)]
+    t = Δt*(0:nsteps)
+    for i in 1:nsteps
+        v̂ = rfft( V[:,i] )
+        ŵ = 1im * [0:N/2-1; 0] .* v̂
+        w = irfft(ŵ, N)
+        V[:,i+1] = vold - 2Δt * c .* w
+        vold = V[:,i]
+        if norm(V[:,i+1], Inf) > 2.5
+            break 
         end
-        data[:, i+1] = v
-        tdata = [tdata; t]
     end
-    mesh(x, tdata, data', ccount=0)
+
+    clf()
+    tplot = 0.15
+    mesh(x, t, V', rcount=ceil(tmax/tplot), ccount=0)
     view(10, 70)
-    xlim(0, 2π)
-    ylim(0, tmax)
-    zlim(0, 5)
-    xlabel("x")
-    ylabel("t")
-    zlabel("u")
+    xlim(0, 2π);  ylim(0, tmax);  zlim(0, 5)
+    xlabel("x");  ylabel("t");  zlabel("u")
     return gcf()
 end
 
@@ -329,13 +310,11 @@ function p7()
     for iplot in 1:4
         subplot(2, 2, iplot)
         semilogy(allN, E[iplot, :], ".-", markersize=6)
-        axis([0, Nmax, 1e-16, 1e3])
-        grid(true)
-        xticks(0:10:Nmax)
-        yticks(10.0 .^ (-15:5:0))
-        title(titles[iplot])
-        iplot > 2 ? xlabel("N") : nothing
-        iplot % 2 > 0 ? ylabel("error") : nothing
+        axis([0, Nmax, 1e-16, 1e3]);  grid(true)
+        xticks(0:10:Nmax);  yticks(10.0 .^ (-15:5:0))
+        text(22, 1, titles[iplot], fontsize=9)
+        (iplot > 2) && xlabel("N") 
+        isodd(iplot) && ylabel("error") 
     end
     return gcf()
 end
@@ -348,12 +327,12 @@ function p8()
     for N in N
         h = 2π / N
         x = [ (L/π)*(i*h - π) for i in 1:N ]
-        col0 = [-π^2 / 3h^2 - 1 / 6; @. -0.5 * (-1)^(1:N-1) / sin(h * (1:N-1) / 2)^2]
-        D² = (π / L)^2 * [col0[1+mod(i-j,N)] for i in 1:N, j in 1:N]  # 2nd-order differentiation
+        entry(k) = k==0 ? -π^2 / 3h^2 - 1/6 : -0.5 * (-1)^k / sin(h * k / 2)^2
+        D² = [(π / L)^2 * entry(mod(i-j, N)) for i in 1:N, j in 1:N]  # 2nd-order differentiation
         λ = [ λ eigvals(-D² + diagm(x .^ 2))[1:4] ]
     end
     header = ["N = $n" for n in N]
-    pretty_table(λ;header,formatters=ft_printf("%.14f"))
+    pretty_table(λ; header, formatters=ft_printf("%.14f"))
 end
 
 # p9 - polynomial interpolation in equispaced and Chebyshev pts
@@ -444,29 +423,22 @@ end
 function p12()
     # Compute derivatives for various values of N:
     Nmax = 50
-    E = zeros(4, Nmax)
-    for N = 1:Nmax
-        D, x = cheb(N)
-        v = @. abs(x)^3
-        vʹ = @. 3x * abs(x)   # 3rd deriv in BV
-        E[1, N] = norm(D * v - vʹ, Inf)
-        v = @. exp(-x^(-2))
-        vʹ = @. 2v / x^3  # C-infinity
-        E[2, N] = norm(D * v - vʹ, Inf)
-        v = @. 1 / (1 + x^2)
-        vʹ = @. -2x * v^2    # analytic in [-1,1]
-        E[3, N] = norm(D * v - vʹ, Inf)
-        v = x .^ 10
-        vʹ = 10x .^ 9               # polynomial
-        E[4, N] = norm(D * v - vʹ, Inf)
-    end
-
-    # Plot results:
-    titles = [L"|x|^3", L"\exp(-x^2)", L"1/(1+x^2)", L"x^{10}"]
+    funs = [
+        ( x -> abs(x)^3, x -> 3x * abs(x), L"|x|^3" ),
+        ( x -> exp(-x^(-2)), x -> 2exp(-x^(-2))/x^3, L"\exp(-x^2)" ),
+        ( x-> 1 / (1 + x^2), x -> -2x / (1 + x^2)^2, L"1/(1+x^2)" ), 
+        ( x -> x^10, x -> 10x^9, L"x^{10}" )
+    ]
+    E = zeros(Nmax)
     clf()
     for iplot = 1:4
+        v, vʹ, label = funs[iplot]
+        for N in 1:Nmax
+            D, x = cheb(N)
+            E[N] = norm(D * v.(x) - vʹ.(x), Inf)
+        end
         subplot(2, 2, iplot)
-        semilogy(1:Nmax, E[iplot, :], ".-", markersize=6)
+        semilogy(1:Nmax, E, ".-", markersize=6)
         axis([0, Nmax, 1e-16, 1e3])
         grid(true)
         if iplot < 3
@@ -481,7 +453,7 @@ function p12()
             yticks(10.0 .^ (-15:5:0))
             ylabel("error")
         end
-        title(titles[iplot])
+        title(label)
     end
     return gcf()
 end
@@ -490,8 +462,7 @@ end
 function p13()
     N = 16
     D, x = cheb(N)
-    D² = D^2
-    D² = D²[2:N, 2:N]                   # boundary conditions
+    D² = (D^2)[2:N, 2:N]                   # boundary conditions
     f = @. exp(4x[2:N])
     u = D² \ f                           # Poisson eq. solved here
     u = [0; u; 0]
@@ -510,9 +481,8 @@ end
 function p14()
     N = 16
     D, x = cheb(N)
-    D² = D^2
-    D² = D²[2:N, 2:N]
-    u = zeros(N - 1)
+    D² = (D^2)[2:N, 2:N]
+    u = zeros(N-1)
     change = 1
     it = 0
     while change > 1e-15                   # fixed-point iteration
@@ -535,12 +505,8 @@ end
 function p15()
     N = 36
     D, x = cheb(N)
-    D² = D^2
-    D² = D²[2:N, 2:N]
-    λ, V = eigen(D²)
-    ii = sortperm(-λ)          # sort eigenvalues and -vectors
-    λ = λ[ii]
-    V = V[:, ii]
+    D² = (D^2)[2:N, 2:N]
+    λ, V = eigen(D²,sortby=(-)∘real)
     clf()
     for j = 5:5:30                  # plot 6 eigenvectors
         u = [0; V[:, j]; 0]
@@ -551,7 +517,7 @@ function p15()
         p = polyinterp(x, u)
         plot(xx, p.(xx))
         axis("off")
-        text(-0.4, 0.1, "eig $j = $(λ[j]*4/π^2) π^2/4")
+        text(-0.4, 0.1, f"eig {j} = {λ[j]*4/π^2:#.14g} π^2/4")
         text(-0.9, 0.1, f"{4*N/(π*j):.2g} ppw")
     end
     return gcf()
@@ -562,11 +528,9 @@ function p16()
     # Set up grids and tensor product Laplacian and solve for u:
     N = 24
     ⊗ = kron
-    D, x = cheb(N)
-    y = x
+    D, x = D, y = cheb(N)
     F = [ 10sin(8x * (y - 1)) for x in x[2:N], y in y[2:N] ]
-    D² = D^2
-    D² = D²[2:N, 2:N]
+    D² = (D^2)[2:N, 2:N]
     L = I(N-1) ⊗ D² + D² ⊗ I(N-1)                     # Laplacian
     fig1 = figure(1)
     clf()
@@ -598,8 +562,7 @@ function p17()
     ⊗ = kron
     D, x = D, y = cheb(N)
     F = [exp(-10 * ((y - 1)^2 + (x - 0.5)^2)) for x in x[2:N], y in y[2:N]]
-    D² = D^2
-    D² = D²[2:N, 2:N]
+    D² = (D^2)[2:N, 2:N]
     k = 9
     L = I(N-1) ⊗ D² + D² ⊗ I(N-1) + k^2 * I
 
@@ -607,12 +570,11 @@ function p17()
     u = L \ vec(F)
     U = zeros(N+1, N+1)
     U[2:N, 2:N] = reshape(u, N-1, N-1)
-    xx = yy = -1:0.0333:1
+    xx = yy = -1:1/50:1
     UU = gridinterp(U, xx, yy)
     clf()
     contour(xx, yy, UU', 10)
-    value = U[N÷2 + 1, N÷2 + 1]
-    title(f"u(0,0) = {value:.11f}")
+    title(f"u(0,0) = {U[N÷2 + 1, N÷2 + 1]:.11f}")
     xlabel("x"); ylabel("y")
     axis("square")
     return gcf()
