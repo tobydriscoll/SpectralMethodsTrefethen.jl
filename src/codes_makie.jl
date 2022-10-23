@@ -459,10 +459,10 @@ function p16(N = 24)
     D² = (D^2)[2:N, 2:N]
     L = I(N-1) ⊗ D² + D² ⊗ I(N-1)                     # Laplacian
 
-    fig = Figure()
-    # Axis(fig[1, 1], title="Matrix nonzeros", aspect=DataAspect())
-    # spy!(sparse(L), markersize=4)
-    # ylims!((N-1)^2, 1)
+    fig1 = Figure()
+    Axis(fig1[1, 1], title="Matrix nonzeros", aspect=DataAspect())
+    spy!(sparse(L), markersize=4)
+    ylims!((N-1)^2, 1)
 
     @elapsed u = L \ vec(F)           # solve problem and watch the clock
     
@@ -475,12 +475,13 @@ function p16(N = 24)
     xx = yy = -1:0.04:1
     UU = gridinterp(U,xx,yy)
  
-    ax3 = Axis3(fig[1, 1], xlabel="x", ylabel="y", zlabel="u")
+    fig2 = Figure()
+    ax3 = Axis3(fig2[1, 1], xlabel="x", ylabel="y", zlabel="u")
     surface!(xx, yy, UU)
     ax3.azimuth = 6π / 5; ax3.elevation = π / 6
     val = f"{value:.11g}"
     text!(0.4, -0.3, 0.3, text=latexstring("u(2^{-1/2},\\,2^{-1/2}) = "*val))
-    return fig
+    return fig1,fig2
 end
 
 # p17 - Helmholtz eq. u_xx + u_yy + (k^2)u = f
