@@ -62,17 +62,36 @@ Differentiate values given at Chebyshev points via the FFT.
 """
 function chebfft(v)
     # Simple, not optimal. If v is complex, delete "real" commands.
-    N = length(v)-1;
-    N==0 && return 0;
-    x = [ cos(pi*k/N) for k=0:N ];
-    ii = collect(0:N-1);
-    V = [v; reverse(v[2:N],dims=1)];              # transform x -> theta
-    U = real(fft(V));
-    W = real(ifft(1im*[ii;0;1-N:-1].*U));
-    w = zeros(N+1);
-    @. w[2:N] = -W[2:N]/sqrt(1-x[2:N]^2);    # transform theta -> x
-    w[1] = sum(ii.^2 .* U[ii.+1])/N + .5*N*U[N+1];
-    w[N+1] = sum((-1).^(ii.+1).*ii.^2 .* U[ii.+1])/N + .5*(-1)^(N+1)*N*U[N+1];
+    N = length(v)-1
+    N==0 && return [0.0]
+    x = [ cos(π*k/N) for k in 0:N ]
+    V = [v; v[N:-1:2]]              # transform x -> theta
+    U = real(fft(V))
+    W = real(ifft(1im*[0:N-1 ;0; 1-N:-1] .* U))
+    w = zeros(N+1)
+    @. w[2:N] = -W[2:N]/sqrt(1-x[2:N]^2)    # transform theta -> x
+    w[1] = sum( n^2 * U[n+1] for n in 0:N-1 )/N + 0.5N*U[N+1];
+    w[N+1] = sum( (-1)^(n+1) * n^2 * U[n+1] for n in 0:N-1 )/N + 0.5N*(-1)^(N+1)*U[N+1];
+    return w
+end
+
+
+"""
+    chebdct(v)
+
+Differentiate values given at Chebyshev points via the discrete cosine transform.
+"""
+function chebdct(v)
+    N = length(v)-1
+    N==0 && return [0.0]
+    x = [cos(π*k/N) for k in 0:N]
+    a = FFTW.r2r(v,FFTW.REDFT00) / N
+    a[[1,end]] .*= 0.5
+    b = -(0:N) .* a 
+    w = zeros(N+1)
+    w[2:N] = FFTW.r2r(-b[2:N],FFTW.RODFT00) ./ (2sqrt.(1 .- x[2:N].^2))
+    w[1] = sum( n^2 * a[n+1] for n in 0:N-1 )
+    w[N+1] = sum( (-1)^(n+1) * n^2 * a[n+1] for n in 0:N-1 )
     return w
 end
 
